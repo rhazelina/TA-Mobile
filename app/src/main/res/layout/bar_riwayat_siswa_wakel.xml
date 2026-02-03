@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <!-- LinearLayout utama -->
+    <LinearLayout
+        android:id="@+id/main_linear_layout"
+        android:layout_width="365dp"
+        android:layout_height="65dp"
+        android:layout_centerHorizontal="true"
+        android:layout_centerVertical="true"
+        android:orientation="vertical"
+        android:background="@drawable/bar_history_siswa_wakel"
+        android:padding="16dp">
+
+        <!-- Subjudul bagian atas -->
+        <TextView
+            android:id="@+id/txt_subjudul"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="60dp"
+            android:text="Nama Siswa/Jurusan"
+            android:textSize="12sp"
+            android:layout_marginTop="-3dp"
+            android:textStyle="bold"
+            android:textColor="@color/black" />
+
+        <!-- Container untuk tanggal dan waktu -->
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1">
+
+            <!-- Tanggal (kiri) -->
+            <TextView
+                android:id="@+id/txt_tanggal"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentStart="true"
+                android:layout_centerVertical="true"
+                android:layout_marginStart="60dp"
+                android:text="17-Agustus-2026"
+                android:textSize="10sp"
+                android:textColor="@color/black" />
+
+            <!-- Waktu (kanan) -->
+            <TextView
+                android:id="@+id/txt_waktu"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentEnd="true"
+                android:layout_centerVertical="true"
+                android:layout_marginEnd="120dp"
+                android:text="Pukul 07:00"
+                android:textSize="10sp"
+                android:textColor="@color/black" />
+
+        </RelativeLayout>
+    </LinearLayout>
+
+    <!-- Gambar di posisi paling kanan -->
+    <ImageView
+        android:id="@+id/img_status"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_centerVertical="true"
+        android:layout_marginEnd="15dp"
+        android:src="@drawable/siswa_hadir_wakel" />
+
+</RelativeLayout>

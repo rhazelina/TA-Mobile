@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:background="@drawable/pop_up_notif"
+    android:orientation="horizontal"
+    android:layout_gravity="center_horizontal"
+    android:padding="12dp">
+
+    <!-- BAGIAN KIRI -->
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:orientation="vertical">
+
+        <!-- NAMA + JURUSAN -->
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="65dp"
+            android:layout_marginTop="5dp"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/text_alert"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Anda mengajar tepat waktu pada"
+                android:textSize="13sp"
+                android:textColor="@color/black" />
+
+            <TextView
+                android:id="@+id/text_jurusan"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Pelajaran Matematika-XII Mekatronika 2"
+                android:textSize="13sp"
+                android:textColor="@color/black" />
+        </LinearLayout>
+    </LinearLayout>
+
+    <!-- JAM KANAN -->
+    <LinearLayout
+        android:id="@+id/jam_notif"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical">
+
+        <TextView
+            android:id="@+id/jam_notifikasi"
+            android:layout_width="wrap_content"
+            android:layout_height="20dp"
+            android:text="09:00"
+            android:layout_marginTop="10dp"
+            android:textSize="14sp"
+            android:textColor="@color/black"/>
+    </LinearLayout>
+</LinearLayout>

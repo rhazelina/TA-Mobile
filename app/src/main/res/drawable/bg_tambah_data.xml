@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- Background putih (Rectangle 73) -->
+    <item>
+        <bitmap
+            android:src="@drawable/rectangle_73"
+            android:gravity="fill"/>
+    </item>
+
+    <!-- Header biru di atas (Rectangle 74) -->
+    <item
+        android:top="4dp"
+        android:left="7dp"
+        android:right="7dp">
+
+        <bitmap
+            android:src="@drawable/rectangle_74"
+            android:gravity="top|fill_horizontal"/>
+    </item>
+
+</layer-list>

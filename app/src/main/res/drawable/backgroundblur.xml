@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="400" height="200" viewBox="0 0 400 200">
+    <defs>
+        <!-- Definisi filter blur -->
+        <filter id="blurFilter" x="0%" y="0%" width="100%" height="100%">
+            <feGaussianBlur in="SourceGraphic" stdDeviation="5"/>
+        </filter>
+    </defs>
+
+    <!-- Background dengan blur dan sudut melengkung -->
+    <rect x="0" y="0" width="400" height="200" rx="20" ry="20" fill="#101010" filter="url(#blurFilter)"/>
+</svg>

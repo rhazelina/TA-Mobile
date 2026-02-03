@@ -1,0 +1,340 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#000000">
+
+    <!-- Container untuk membatasi lebar maksimal seperti mobile phone -->
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/mobile_container"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:background="@android:color/white"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintWidth_max="480dp">
+
+        <!-- ScrollView untuk konten -->
+        <ScrollView
+            android:id="@+id/scrollContent"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:fillViewport="true"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toTopOf="@+id/navigationBar"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent">
+
+            <FrameLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <!-- Background -->
+                <ImageView
+                    android:id="@+id/bg_layout"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:adjustViewBounds="true"
+                    android:scaleType="centerCrop"
+                    android:src="@drawable/bg_riwayat_guru" />
+
+                <!-- Konten -->
+                <LinearLayout
+                    android:id="@+id/content_layout"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:paddingBottom="20dp">
+
+                    <!-- Header -->
+                    <LinearLayout
+                        android:id="@+id/header"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="50dp"
+                        android:orientation="vertical"
+                        android:padding="16dp">
+
+                        <TextView
+                            android:id="@+id/title_total_guru_top"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Riwayat"
+                            android:textColor="@android:color/white"
+                            android:textSize="45sp"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:id="@+id/title_total_guru_bottom"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Kehadiran Anda"
+                            android:layout_marginTop="-5dp"
+                            android:textStyle="bold"
+                            android:textColor="@android:color/white"
+                            android:textSize="28sp" />
+                    </LinearLayout>
+
+                    <!-- Status Kehadiran Layout -->
+                    <LinearLayout
+                        android:id="@+id/status_kehadiran_layout"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:gravity="center"
+                        android:layout_marginTop="25dp"
+                        android:padding="8dp">
+
+                        <!-- Baris 1: Izin, Sakit, Alpha -->
+                        <LinearLayout
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:gravity="center"
+                            android:layout_marginBottom="1dp">
+
+                            <!-- Tombol Izin dengan Nomor -->
+                            <FrameLayout
+                                android:layout_width="120dp"
+                                android:layout_height="70dp"
+                                android:layout_marginEnd="16dp">
+
+                                <ImageButton
+                                    android:id="@+id/button_izin"
+                                    android:layout_width="match_parent"
+                                    android:layout_height="match_parent"
+                                    android:src="@drawable/btn_guru_izin"
+                                    android:background="@drawable/bg_button_status"
+                                    android:contentDescription="Izin"
+                                    android:padding="4dp" />
+
+                                <TextView
+                                    android:id="@+id/txt_izin_count"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="0"
+                                    android:textColor="@color/material_dynamic_primary10"
+                                    android:textStyle="bold"
+                                    android:textSize="30sp"
+                                    android:layout_marginTop="10dp"
+                                    android:layout_gravity="center" />
+                            </FrameLayout>
+
+                            <!-- Tombol Sakit dengan Nomor -->
+                            <FrameLayout
+                                android:layout_width="120dp"
+                                android:layout_height="70dp"
+                                android:layout_marginEnd="16dp">
+
+                                <ImageButton
+                                    android:id="@+id/button_sakit"
+                                    android:layout_width="match_parent"
+                                    android:layout_height="match_parent"
+                                    android:src="@drawable/btn_guru_sakit"
+                                    android:background="@drawable/bg_button_status"
+                                    android:contentDescription="Sakit"
+                                    android:padding="4dp" />
+
+                                <TextView
+                                    android:id="@+id/txt_sakit_count"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="0"
+                                    android:textColor="@color/material_dynamic_primary10"
+                                    android:textStyle="bold"
+                                    android:textSize="30sp"
+                                    android:layout_marginTop="10dp"
+                                    android:layout_gravity="center" />
+                            </FrameLayout>
+
+                            <!-- Tombol Alpha dengan Nomor -->
+                            <FrameLayout
+                                android:layout_width="120dp"
+                                android:layout_height="70dp">
+
+                                <ImageButton
+                                    android:id="@+id/button_alpha"
+                                    android:layout_width="match_parent"
+                                    android:layout_height="match_parent"
+                                    android:src="@drawable/btn_guru_alpha"
+                                    android:background="@drawable/bg_button_status"
+                                    android:contentDescription="Alpha"
+                                    android:padding="4dp" />
+
+                                <TextView
+                                    android:id="@+id/txt_alpha_count"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="0"
+                                    android:textColor="@color/material_dynamic_primary10"
+                                    android:textStyle="bold"
+                                    android:textSize="30sp"
+                                    android:layout_marginTop="10dp"
+                                    android:layout_gravity="center" />
+                            </FrameLayout>
+
+                        </LinearLayout>
+
+                        <!-- Baris 2: Hadir + Board Tanggal Guru -->
+                        <LinearLayout
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:layout_marginTop="5dp"
+                            android:gravity="center">
+
+                            <FrameLayout
+                                android:layout_width="120dp"
+                                android:layout_height="70dp"
+                                android:layout_marginStart="10dp">
+
+                                <ImageButton
+                                    android:id="@+id/button_hadir"
+                                    android:layout_width="match_parent"
+                                    android:layout_height="match_parent"
+                                    android:src="@drawable/btn_guru_hadir"
+                                    android:background="@drawable/bg_button_status"
+                                    android:contentDescription="Hadir"
+                                    android:padding="4dp" />
+
+                                <TextView
+                                    android:id="@+id/txt_hadir_count"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="0"
+                                    android:textColor="@color/material_dynamic_primary10"
+                                    android:textStyle="bold"
+                                    android:textSize="30sp"
+                                    android:layout_marginTop="10dp"
+                                    android:layout_gravity="center" />
+                            </FrameLayout>
+
+                            <RelativeLayout
+                                android:layout_width="250dp"
+                                android:layout_height="70dp"
+                                android:background="@drawable/bg_board_tanggal"
+                                android:layout_marginStart="16dp"
+                                android:layout_marginEnd="16dp"
+                                android:gravity="center_vertical"
+                                android:padding="8dp">
+
+                                <!-- Icon di end -->
+                                <ImageView
+                                    android:id="@+id/icon_calendar"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:src="@drawable/calendar_month"
+                                    android:layout_marginEnd="5dp"
+                                    android:contentDescription="Calendar Icon"
+                                    android:layout_alignParentEnd="true"
+                                    android:layout_centerVertical="true" />
+
+                                <!-- Text di start (mengambil ruang sampai sebelum icon) -->
+                                <TextView
+                                    android:id="@+id/text_filter_tanggal"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_alignParentStart="true"
+                                    android:layout_centerVertical="true"
+                                    android:layout_toStartOf="@id/icon_calendar"
+                                    android:text="Minggu, 01 Januari 2025"
+                                    android:textColor="@color/black"
+                                    android:textSize="20sp"
+                                    android:textStyle="bold" />
+
+                            </RelativeLayout>
+                        </LinearLayout>
+                    </LinearLayout>
+
+                    <!-- RecyclerView untuk daftar riwayat -->
+                    <androidx.recyclerview.widget.RecyclerView
+                        android:id="@+id/recycler_riwayat"
+                        android:layout_width="match_parent"
+                        android:layout_height="700dp"
+                        android:layout_marginTop="20dp"
+                        android:layout_marginHorizontal="16dp"
+                        android:padding="8dp"
+                        android:scrollbars="vertical"
+                        android:overScrollMode="always" />
+
+                </LinearLayout>
+            </FrameLayout>
+        </ScrollView>
+
+        <!-- FOOTER FIXED -->
+        <LinearLayout
+            android:id="@+id/navigationBar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/footer_universal"
+            android:elevation="7dp"
+            android:gravity="center"
+            android:orientation="horizontal"
+            android:paddingBottom="8dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent">
+
+            <!-- Konten footer -->
+            <ImageButton
+                android:id="@+id/btnHome"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="11dp"
+                android:src="@drawable/home"
+                android:scaleType="fitCenter"
+                android:background="@null"
+                android:contentDescription="Home" />
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:gravity="center"
+                android:orientation="vertical">
+
+                <ImageButton
+                    android:id="@+id/btnAssigment"
+                    android:layout_width="36dp"
+                    android:layout_height="36dp"
+                    android:layout_marginHorizontal="11dp"
+                    android:background="@null"
+                    android:contentDescription="Jadwal"
+                    android:scaleType="fitCenter"
+                    android:src="@drawable/content_paste_active" />
+
+                <View
+                    android:layout_width="50dp"
+                    android:layout_height="8dp"
+                    android:layout_marginTop="7dp"
+                    android:background="@drawable/penanda_halaman_universal" />
+            </LinearLayout>
+
+            <ImageButton
+                android:id="@+id/btnChart"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="11dp"
+                android:background="@null"
+                android:contentDescription="Chart"
+                android:scaleType="fitCenter"
+                android:src="@drawable/bar_chart" />
+
+            <ImageButton
+                android:id="@+id/btnNotif"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="11dp"
+                android:background="@null"
+                android:contentDescription="Notification"
+                android:scaleType="fitCenter"
+                android:src="@drawable/notifications" />
+        </LinearLayout>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

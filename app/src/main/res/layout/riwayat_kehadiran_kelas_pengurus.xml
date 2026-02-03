@@ -1,0 +1,359 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#000000">
+
+    <!-- Container untuk membatasi lebar maksimal seperti mobile phone -->
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/mobile_container"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:background="@android:color/white"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintWidth_max="480dp">
+
+        <!-- ScrollView untuk konten -->
+        <ScrollView
+            android:id="@+id/scrollContent"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:fillViewport="true"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toTopOf="@+id/navigationBar"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent">
+
+            <FrameLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <!-- Background -->
+                <ImageView
+                    android:id="@+id/bg_layout"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:adjustViewBounds="true"
+                    android:scaleType="centerCrop"
+                    android:src="@drawable/bg_riwayat_guru" />
+
+                <!-- Konten -->
+                <LinearLayout
+                    android:id="@+id/content_layout"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:paddingBottom="20dp">
+
+                    <!-- Header -->
+                    <LinearLayout
+                        android:id="@+id/header"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="50dp"
+                        android:orientation="vertical"
+                        android:padding="16dp">
+
+                        <TextView
+                            android:id="@+id/title_total_guru_top"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Riwayat"
+                            android:textColor="@android:color/white"
+                            android:textSize="45sp"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:id="@+id/title_total_guru_bottom"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Kehadiran Kelas"
+                            android:layout_marginTop="-5dp"
+                            android:textStyle="bold"
+                            android:textColor="@android:color/white"
+                            android:textSize="28sp" />
+                    </LinearLayout>
+
+                    <!-- Banner Jumlah Siswa -->
+                    <LinearLayout
+                        android:layout_width="375dp"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:layout_marginTop="30dp"
+                        android:layout_gravity="center_horizontal"
+                        android:background="@drawable/banner_jumlah_siswa"
+                        android:padding="8dp">
+
+                        <TextView
+                            android:id="@+id/text_jumlah_siswa"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="Total Mata Pelajaran : __"
+                            android:textColor="@color/white"
+                            android:layout_marginStart="60dp"
+                            android:textSize="16sp"
+                            android:textStyle="bold" />
+
+                        <!-- Text sebagai button navigasi -->
+                        <TextView
+                            android:id="@+id/text_navigasi"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Lihat Detail"
+                            android:textColor="@color/white"
+                            android:textSize="14sp"
+                            android:textStyle="bold"
+                            android:layout_marginEnd="2dp"
+                            android:clickable="true"
+                            android:focusable="true"
+                            android:background="?attr/selectableItemBackground"
+                            android:gravity="center"/>
+                    </LinearLayout>
+
+                    <!-- Status Kehadiran Layout -->
+                    <LinearLayout
+                        android:id="@+id/status_kehadiran_layout"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:gravity="center"
+                        android:layout_marginTop="10dp"
+                        android:padding="8dp">
+
+                        <LinearLayout
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:gravity="center"
+                            android:layout_marginBottom="1dp">
+
+                            <RelativeLayout
+                                android:layout_width="375dp"
+                                android:layout_height="50dp"
+                                android:background="@drawable/rectangle_date"
+                                android:layout_marginStart="16dp"
+                                android:layout_marginEnd="16dp"
+                                android:gravity="center_vertical"
+                                android:padding="8dp">
+
+                                <!-- Icon kalender di paling kiri -->
+                                <ImageButton
+                                    android:id="@+id/icon_calendar"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:src="@drawable/calendar_month"
+                                    android:contentDescription="Calendar Icon"
+                                    android:layout_alignParentStart="true"
+                                    android:layout_centerVertical="true"
+                                    android:background="@android:color/transparent"
+                                    android:scaleType="fitCenter" />
+
+                                <!-- Text tanggal di kanan icon, tanpa margin kanan -->
+                                <TextView
+                                    android:id="@+id/text_filter_tanggal"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_toEndOf="@id/icon_calendar"
+                                    android:layout_alignParentEnd="true"
+                                    android:layout_centerVertical="true"
+                                    android:layout_marginStart="25dp"
+                                    android:text="Minggu, 01 Januari 2026"
+                                    android:textColor="@color/black"
+                                    android:textSize="20sp"
+                                    android:textStyle="bold" />
+
+                            </RelativeLayout>
+
+                        </LinearLayout>
+
+                        <!-- Baris 2: Hadir + Board Tanggal Guru -->
+                        <LinearLayout
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:layout_marginTop="15dp"
+                            android:gravity="center">
+
+                            <FrameLayout
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginEnd="5dp">
+
+                                <ImageButton
+                                    android:id="@+id/button_hadir"
+                                    android:layout_width="90dp"
+                                    android:layout_height="60dp"
+                                    android:src="@drawable/filter_hadir_kelas"
+                                    android:background="@drawable/bg_button_status"
+                                    android:contentDescription="Hadir"
+                                    android:padding="4dp" />
+
+                                <TextView
+                                    android:id="@+id/txt_hadir_count"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="0"
+                                    android:textColor="@color/material_dynamic_primary10"
+                                    android:textStyle="bold"
+                                    android:textSize="25sp"
+                                    android:layout_marginTop="10dp"
+                                    android:layout_gravity="center" />
+                            </FrameLayout>
+
+                            <!-- Tombol Izin dengan Nomor -->
+                            <FrameLayout
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginEnd="5dp">
+
+                                <ImageButton
+                                    android:id="@+id/button_izin"
+                                    android:layout_width="90dp"
+                                    android:layout_height="60dp"
+                                    android:src="@drawable/filter_izin_kelas"
+                                    android:background="@drawable/bg_button_status"
+                                    android:contentDescription="Izin"
+                                    android:padding="4dp" />
+
+                                <TextView
+                                    android:id="@+id/txt_izin_count"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="0"
+                                    android:textColor="@color/material_dynamic_primary10"
+                                    android:textStyle="bold"
+                                    android:textSize="25sp"
+                                    android:layout_marginTop="10dp"
+                                    android:layout_gravity="center" />
+                            </FrameLayout>
+
+                            <!-- Tombol Sakit dengan Nomor -->
+                            <FrameLayout
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginEnd="5dp">
+
+                                <ImageButton
+                                    android:id="@+id/button_sakit"
+                                    android:layout_width="90dp"
+                                    android:layout_height="60dp"
+                                    android:src="@drawable/filter_sakit_kelas"
+                                    android:background="@drawable/bg_button_status"
+                                    android:contentDescription="Sakit"
+                                    android:padding="4dp" />
+
+                                <TextView
+                                    android:id="@+id/txt_sakit_count"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="0"
+                                    android:textColor="@color/material_dynamic_primary10"
+                                    android:textStyle="bold"
+                                    android:textSize="25sp"
+                                    android:layout_marginTop="10dp"
+                                    android:layout_gravity="center" />
+                            </FrameLayout>
+
+                            <!-- Tombol Alpha dengan Nomor -->
+                            <FrameLayout
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content">
+
+                                <ImageButton
+                                    android:id="@+id/button_alpha"
+                                    android:layout_width="90dp"
+                                    android:layout_height="60dp"
+                                    android:src="@drawable/filter_alpha_kelas"
+                                    android:background="@drawable/bg_button_status"
+                                    android:contentDescription="Alpha"
+                                    android:padding="4dp" />
+
+                                <TextView
+                                    android:id="@+id/txt_alpha_count"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="0"
+                                    android:textColor="@color/material_dynamic_primary10"
+                                    android:textStyle="bold"
+                                    android:textSize="25sp"
+                                    android:layout_marginTop="10dp"
+                                    android:layout_gravity="center" />
+                            </FrameLayout>
+                        </LinearLayout>
+                    </LinearLayout>
+
+                    <!-- RecyclerView untuk daftar riwayat -->
+                    <androidx.recyclerview.widget.RecyclerView
+                        android:id="@+id/recycler_riwayat"
+                        android:layout_width="365dp"
+                        android:layout_height="600dp"
+                        android:layout_marginTop="20dp"
+                        android:layout_gravity="center_horizontal"
+                        android:padding="8dp"
+                        android:scrollbars="vertical"
+                        tools:listitem="@layout/item_riwayat_kehadiran_kelas"/>
+
+                </LinearLayout>
+            </FrameLayout>
+        </ScrollView>
+
+        <!-- FOOTER FIXED -->
+        <LinearLayout
+            android:id="@+id/navigationBar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/footer_universal"
+            android:elevation="7dp"
+            android:gravity="center"
+            android:orientation="horizontal"
+            android:paddingBottom="8dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent">
+
+            <!-- Konten footer -->
+            <ImageButton
+                android:id="@+id/btnHome"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="11dp"
+                android:src="@drawable/home"
+                android:scaleType="fitCenter"
+                android:background="@null"
+                android:contentDescription="Home" />
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:gravity="center"
+                android:orientation="vertical">
+
+                <ImageButton
+                    android:id="@+id/btnAssignment"
+                    android:layout_width="36dp"
+                    android:layout_height="36dp"
+                    android:layout_marginHorizontal="11dp"
+                    android:background="@null"
+                    android:contentDescription="Jadwal"
+                    android:scaleType="fitCenter"
+                    android:src="@drawable/content_paste_active" />
+
+                <View
+                    android:layout_width="50dp"
+                    android:layout_height="8dp"
+                    android:layout_marginTop="7dp"
+                    android:background="@drawable/penanda_halaman_universal" />
+            </LinearLayout>
+        </LinearLayout>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

@@ -1,0 +1,412 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#E0E0E0">
+
+    <RelativeLayout
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintWidth_max="480dp">
+
+        <!-- ================= SCROLL ================= -->
+        <ScrollView
+            android:id="@+id/scrollContent"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_above="@id/navigationBar"
+            android:fillViewport="true"
+            android:background="@color/white">
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <!-- Background Putih untuk seluruh area konten -->
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:background="@color/white"/>
+
+                <!-- Background khusus untuk header -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:background="@color/white">
+
+                    <TextView
+                        android:id="@+id/tvTitle"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Notifikasi"
+                        android:textSize="30sp"
+                        android:textStyle="bold"
+                        android:textColor="@color/black"
+                        android:layout_marginTop="20dp"
+                        android:paddingStart="20dp"
+                        tools:text="Notifikasi" />
+
+                    <!-- ================= KONTEN ================= -->
+                    <LinearLayout
+                        android:id="@+id/kontenUtama"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="20dp"
+                        android:orientation="vertical"
+                        android:background="@color/white">
+
+                        <!-- ================= FILTER BAR ================= -->
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:gravity="center_vertical"
+                            android:layout_marginHorizontal="20dp"
+                            android:background="@color/white"
+                            tools:ignore="UseCompoundDrawables">
+
+                            <!-- FILTER: SEMUA -->
+                            <LinearLayout
+                                android:id="@+id/icon_notif_belum"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:background="@drawable/rectangle_86"
+                                android:gravity="center"
+                                android:minHeight="40dp"
+                                android:paddingVertical="8dp"
+                                android:orientation="vertical">
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="Semua"
+                                    android:textColor="@color/black"
+                                    android:textSize="14sp"
+                                    android:textStyle="bold"
+                                    tools:text="Semua" />
+                            </LinearLayout>
+
+                            <Space
+                                android:layout_width="8dp"
+                                android:layout_height="wrap_content" />
+
+                            <!-- FILTER: JAM KE -->
+                            <LinearLayout
+                                android:id="@+id/icon_notif_semua"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1.5"
+                                android:background="@drawable/rectangle_94"
+                                android:gravity="center_vertical"
+                                android:minHeight="40dp"
+                                android:orientation="horizontal"
+                                android:paddingHorizontal="12dp">
+
+                                <TextView
+                                    android:id="@+id/tvJamKe"
+                                    android:layout_width="0dp"
+                                    android:layout_height="wrap_content"
+                                    android:layout_weight="1"
+                                    android:text="Jam ke-"
+                                    android:textColor="@color/black"
+                                    android:textSize="14sp"
+                                    android:textStyle="bold"
+                                    tools:text="Jam ke-" />
+
+                                <ImageButton
+                                    android:id="@+id/btnDropdownJamKe"
+                                    android:layout_width="24dp"
+                                    android:layout_height="24dp"
+                                    android:background="@null"
+                                    android:contentDescription="Pilih jam ke"
+                                    android:src="@drawable/arrow_drop_down" />
+                            </LinearLayout>
+
+                            <Space
+                                android:layout_width="8dp"
+                                android:layout_height="wrap_content" />
+
+                            <!-- FILTER: TANGGAL -->
+                            <LinearLayout
+                                android:id="@+id/btnPeriode"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1.5"
+                                android:background="@drawable/rectangle_94"
+                                android:gravity="center_vertical"
+                                android:minHeight="40dp"
+                                android:orientation="horizontal"
+                                android:paddingHorizontal="12dp">
+
+                                <TextView
+                                    android:id="@+id/tvTanggal"
+                                    android:layout_width="0dp"
+                                    android:layout_height="wrap_content"
+                                    android:layout_weight="1"
+                                    android:text="tgl/bln"
+                                    android:textColor="@color/black"
+                                    android:textSize="14sp"
+                                    android:textStyle="bold"
+                                    tools:text="19/01" />
+
+                                <ImageButton
+                                    android:id="@+id/btnCalendar"
+                                    android:layout_width="24dp"
+                                    android:layout_height="24dp"
+                                    android:background="@null"
+                                    android:contentDescription="Pilih tanggal"
+                                    android:src="@drawable/calendar_month" />
+                            </LinearLayout>
+
+                            <Space
+                                android:layout_width="8dp"
+                                android:layout_height="wrap_content" />
+
+                            <!-- FILTER: JENIS -->
+                            <LinearLayout
+                                android:id="@+id/btnDropdownFilter"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1.5"
+                                android:background="@drawable/rectangle_94"
+                                android:gravity="center_vertical"
+                                android:minHeight="40dp"
+                                android:orientation="horizontal"
+                                android:paddingHorizontal="12dp">
+
+                                <TextView
+                                    android:id="@+id/tvFilter"
+                                    android:layout_width="0dp"
+                                    android:layout_height="wrap_content"
+                                    android:layout_weight="1"
+                                    android:text="Semua"
+                                    android:textColor="@color/black"
+                                    android:textSize="14sp"
+                                    android:textStyle="bold"
+                                    tools:text="Semua" />
+
+                                <ImageButton
+                                    android:id="@+id/btnArrowFilter"
+                                    android:layout_width="24dp"
+                                    android:layout_height="24dp"
+                                    android:background="@null"
+                                    android:contentDescription="Pilih filter"
+                                    android:src="@drawable/arrow_drop_down" />
+                            </LinearLayout>
+                        </LinearLayout>
+
+                        <!-- ================= PILIH KELAS/JURUSAN ================= -->
+                        <LinearLayout
+                            android:id="@+id/btnPilihKelas"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginHorizontal="20dp"
+                            android:layout_marginTop="16dp"
+                            android:background="@drawable/rectangle_160"
+                            android:gravity="center_vertical"
+                            android:minHeight="50dp"
+                            android:orientation="horizontal"
+                            android:paddingHorizontal="12dp"
+                            android:paddingVertical="10dp">
+
+                            <TextView
+                                android:id="@+id/tvPilihKelas"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:text="Pilih Kelas/Jurusan"
+                                android:textColor="@color/black"
+                                android:textSize="16sp"
+                                android:textStyle="bold"
+                                tools:text="Pilih Kelas/Jurusan" />
+
+                            <ImageButton
+                                android:id="@+id/btnArrowKelas"
+                                android:layout_width="24dp"
+                                android:layout_height="24dp"
+                                android:background="@null"
+                                android:contentDescription="Pilih kelas atau jurusan"
+                                android:src="@drawable/arrow_drop_down" />
+                        </LinearLayout>
+
+                        <!-- ================= SECTION: HARI INI ================= -->
+                        <TextView
+                            android:id="@+id/tvHariIni"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="20dp"
+                            android:layout_marginTop="24dp"
+                            android:text="Hari Ini"
+                            android:textColor="@color/black"
+                            android:textSize="20sp"
+                            android:textStyle="bold"
+                            tools:text="Hari Ini" />
+
+                        <!-- RV HARI INI dengan NestedScrollView -->
+                        <androidx.core.widget.NestedScrollView
+                            android:id="@+id/scrollHariIni"
+                            android:layout_width="match_parent"
+                            android:layout_height="300dp"
+                            android:layout_marginHorizontal="20dp"
+                            android:fillViewport="true"
+                            android:background="@color/white">
+
+                            <androidx.recyclerview.widget.RecyclerView
+                                android:id="@+id/rvNotifHariIni"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:nestedScrollingEnabled="false"
+                                tools:itemCount="5"
+                                tools:listitem="@layout/item_notif_semua" />
+                        </androidx.core.widget.NestedScrollView>
+
+                        <!-- ================= SECTION: KEMARIN ================= -->
+                        <TextView
+                            android:id="@+id/tvKemarin"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="20dp"
+                            android:layout_marginTop="24dp"
+                            android:text="Kemarin"
+                            android:textColor="@color/black"
+                            android:textSize="20sp"
+                            android:textStyle="bold"
+                            tools:text="Kemarin" />
+
+                        <!-- RV KEMARIN dengan NestedScrollView -->
+                        <androidx.core.widget.NestedScrollView
+                            android:id="@+id/scrollKemarin"
+                            android:layout_width="match_parent"
+                            android:layout_height="200dp"
+                            android:layout_marginHorizontal="20dp"
+                            android:fillViewport="true"
+                            android:background="@color/white">
+
+                            <androidx.recyclerview.widget.RecyclerView
+                                android:id="@+id/rvNotifKemarin"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:nestedScrollingEnabled="false"
+                                tools:itemCount="3"
+                                tools:listitem="@layout/item_notif_semua" />
+                        </androidx.core.widget.NestedScrollView>
+
+                        <!-- ================= SECTION: BULAN LALU ================= -->
+                        <TextView
+                            android:id="@+id/tvBulanLalu"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="20dp"
+                            android:layout_marginTop="24dp"
+                            android:text="Bulan Lalu"
+                            android:textColor="@color/black"
+                            android:textSize="20sp"
+                            android:textStyle="bold"
+                            tools:text="Bulan Lalu" />
+
+                        <!-- RV BULAN LALU dengan NestedScrollView -->
+                        <androidx.core.widget.NestedScrollView
+                            android:id="@+id/scrollBulanLalu"
+                            android:layout_width="match_parent"
+                            android:layout_height="120dp"
+                            android:layout_marginHorizontal="20dp"
+                            android:fillViewport="true"
+                            android:paddingBottom="20dp"
+                            android:background="@color/white">
+
+                            <androidx.recyclerview.widget.RecyclerView
+                                android:id="@+id/rvNotifBulanLalu"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:nestedScrollingEnabled="false"
+                                tools:itemCount="2"
+                                tools:listitem="@layout/item_notif_semua" />
+                        </androidx.core.widget.NestedScrollView>
+
+                    </LinearLayout>
+
+                </LinearLayout>
+
+            </RelativeLayout>
+        </ScrollView>
+
+        <!-- ================= NAVBAR ================= -->
+        <LinearLayout
+            android:id="@+id/navigationBar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:orientation="horizontal"
+            android:gravity="center"
+            android:background="@drawable/rectangle_12"
+            android:paddingVertical="12dp"
+            android:elevation="7dp">
+
+            <Space
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"/>
+
+            <!-- HOME -->
+            <ImageButton
+                android:id="@+id/btnHome"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:background="@null"
+                android:src="@drawable/homehitam" />
+
+            <!-- CONTACTS -->
+            <ImageButton
+                android:id="@+id/btnContacts"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:src="@drawable/contacts_product"
+                android:background="@null"/>
+
+            <!-- CHART -->
+            <ImageButton
+                android:id="@+id/btnChart"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:src="@drawable/bar_chart"
+                android:background="@null"/>
+
+            <!-- NOTIFICATIONS -->
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:gravity="center">
+
+                <ImageButton
+                    android:id="@+id/btnNotif"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:src="@drawable/notificationsbiru"
+                    android:background="@null"/>
+
+                <View
+                    android:layout_width="50dp"
+                    android:layout_height="8dp"
+                    android:layout_marginTop="6dp"
+                    android:background="@drawable/rectangle_44"/>
+            </LinearLayout>
+
+            <Space
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"/>
+        </LinearLayout>
+
+    </RelativeLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

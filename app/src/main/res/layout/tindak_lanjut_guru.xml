@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <!-- Konten utama scrollable -->
+    <ScrollView
+        android:id="@+id/scrollContent"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:fillViewport="true">
+
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <!-- Background full screen -->
+            <ImageView
+                android:id="@+id/imageView6"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:adjustViewBounds="true"
+                android:scaleType="fitXY"
+                android:src="@drawable/bg_tindak_lanjut" />
+
+            <!-- Konten di atas background -->
+            <LinearLayout
+                android:id="@+id/contentContainer"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical"
+                android:padding="16dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="start"
+                    android:layout_marginStart="10dp"
+                    android:text="Kelas/Jurusan"
+                    android:layout_marginTop="200dp"
+                    android:textColor="@color/black"
+                    android:textSize="18sp"
+                    android:textStyle="bold"/>
+
+                <LinearLayout
+                    android:id="@+id/contentContainer2"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_marginTop="10dp"
+                    android:background="@drawable/bar_pencarian_border"
+                    android:padding="12dp"
+                    android:gravity="center_vertical">
+
+                    <!-- EditText di Start -->
+                    <EditText
+                        android:id="@+id/etSearchKelas"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:hint="Cari Nama Kelas/Jurusan"
+                        android:textSize="14sp"
+                        android:background="@null"
+                        android:paddingVertical="4dp"
+                        android:imeOptions="actionSearch"
+                        android:singleLine="true" />
+
+                    <!-- Icon di End -->
+                    <ImageView
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:src="@drawable/search_1"
+                        android:layout_marginStart="12dp"
+                        android:contentDescription="Search icon" />
+
+                </LinearLayout>
+
+                <!-- item list disini -->
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/rvSiswaAbsensi"
+                    android:layout_width="match_parent"
+                    android:layout_height="450dp"
+                    android:layout_marginTop="50dp" />
+            </LinearLayout>
+        </FrameLayout>
+    </ScrollView>
+
+    <!-- Footer navigation -->
+    <LinearLayout
+        android:id="@+id/navigationBar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:orientation="horizontal"
+        android:gravity="center"
+        android:paddingBottom="8dp"
+        android:background="@drawable/footer_universal"
+        android:elevation="7dp">
+
+        <ImageButton
+            android:id="@+id/btnHome"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/home"
+            android:background="@null"
+            android:scaleType="fitCenter"
+            android:layout_marginHorizontal="11dp"
+            android:contentDescription="Dashboard" />
+
+        <ImageButton
+            android:id="@+id/btnCalendar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="11dp"
+            android:src="@drawable/content_paste"
+            android:scaleType="fitCenter"
+            android:background="@null"
+            android:contentDescription="Riwayat" />
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_marginTop="10dp"
+            android:gravity="center">
+
+            <ImageButton
+                android:id="@+id/btnChart"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/bar_chart_active"
+                android:background="@null"
+                android:layout_marginHorizontal="11dp"
+                android:scaleType="fitCenter"
+                android:contentDescription="Chart" />
+
+            <View
+                android:layout_marginTop="7dp"
+                android:layout_width="50dp"
+                android:layout_height="8dp"
+                android:background="@drawable/penanda_halaman_universal" />
+        </LinearLayout>
+
+        <ImageButton
+            android:id="@+id/btnNotif"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="11dp"
+            android:src="@drawable/notifications"
+            android:scaleType="fitCenter"
+            android:background="@null"
+            android:contentDescription="Notification" />
+    </LinearLayout>
+</RelativeLayout>

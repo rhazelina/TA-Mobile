@@ -1,0 +1,537 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#E0E0E0">
+
+    <!-- Container dengan max width -->
+    <FrameLayout
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintWidth_max="480dp">
+
+        <!-- Konten utama scrollable - FULL HEIGHT -->
+        <ScrollView
+            android:id="@+id/scrollContent"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:clipToPadding="false"
+            android:fillViewport="true">
+
+            <FrameLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <!-- Background full screen -->
+                <ImageView
+                    android:id="@+id/imageView6"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:adjustViewBounds="true"
+                    android:scaleType="fitXY"
+                    android:src="@drawable/dasboard_wakel" />
+
+                <!-- Konten di atas background -->
+                <LinearLayout
+                    android:id="@+id/contentContainer"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="16dp">
+
+                    <!-- Group Profile -->
+                    <LinearLayout
+                        android:id="@+id/group"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:gravity="center"
+                        android:layout_gravity="end"
+                        android:layout_marginTop="16dp">
+
+                        <FrameLayout
+                            android:layout_width="wrap_content"
+                            android:layout_marginTop="5dp"
+                            android:layout_height="wrap_content">
+
+                            <ImageView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:src="@drawable/profile_wakel"
+                                android:contentDescription="Profile Wali Kelas" />
+
+                            <ImageView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:src="@drawable/profile_p"
+                                android:layout_marginLeft="160dp"
+                                android:layout_gravity="center_vertical"
+                                android:contentDescription="Profile Overlay" />
+
+                            <!-- Tanggal Terkini -->
+                            <TextView
+                                android:id="@+id/txtTanggalSekarang"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_gravity="end"
+                                android:layout_marginEnd="75dp"
+                                android:layout_marginTop="35dp"
+                                android:text="Kamis, 1 Januari 2026"
+                                android:textSize="12sp"
+                                android:textColor="@android:color/white"/>
+                        </FrameLayout>
+                    </LinearLayout>
+
+
+                    <!-- Group 1: Banner + Grid -->
+                    <LinearLayout
+                        android:id="@+id/group1"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:layout_gravity="center_horizontal"
+                        android:gravity="center"
+                        android:layout_marginTop="30dp">
+
+                        <!-- tittle -->
+                        <ImageView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:adjustViewBounds="true"
+                            android:layout_gravity="start"
+                            android:layout_marginStart="10dp"
+                            android:layout_marginBottom="10dp"
+                            android:src="@drawable/banner_kehadiran_siswa" />
+
+                        <!-- grid membagi 4 bagian -->
+                        <GridLayout
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:columnCount="1"
+                            android:rowCount="1"
+                            android:padding="2dp"
+                            android:layout_gravity="center"
+                            android:useDefaultMargins="false">
+
+                            <FrameLayout
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_gravity="center_horizontal"
+                                android:layout_margin="2.5dp">
+
+                                <!-- Grid Hadir -->
+                                <ImageButton
+                                    android:id="@+id/jumlah_siswa_wakel"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:background="@null"
+                                    android:scaleType="fitCenter"
+                                    app:srcCompat="@drawable/jumlah_siswa_wakel"
+                                    android:contentDescription="Hadir"/>
+
+                                <!-- Jumlah Hadir -->
+                                <TextView
+                                    android:id="@+id/nominal_siswa"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="00"
+                                    android:textStyle="bold"
+                                    android:textSize="25sp"
+                                    android:textColor="@color/black"
+                                    android:layout_marginRight="25dp"
+                                    android:layout_marginBottom="2dp"
+                                    android:layout_gravity="end|center_vertical"/>
+                            </FrameLayout>
+
+                            <FrameLayout
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_margin="2.5dp">
+
+                                <!-- Grid Hadir -->
+                                <ImageButton
+                                    android:id="@+id/button_hadir"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:background="@null"
+                                    android:scaleType="fitCenter"
+                                    app:srcCompat="@drawable/info_board_dashboard1"
+                                    android:contentDescription="Hadir"/>
+
+                                <!-- Jumlah Hadir -->
+                                <TextView
+                                    android:id="@+id/txt_hadir_count"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="00"
+                                    android:textStyle="bold"
+                                    android:textSize="25sp"
+                                    android:textColor="@color/white"
+                                    android:layout_marginRight="25dp"
+                                    android:layout_marginBottom="2dp"
+                                    android:layout_gravity="end|center_vertical"/>
+                            </FrameLayout>
+
+                            <FrameLayout
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_margin="2.5dp">
+
+                                <!-- Grid Sakit -->
+                                <ImageButton
+                                    android:id="@+id/button_sakit"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:background="@null"
+                                    android:scaleType="fitCenter"
+                                    app:srcCompat="@drawable/info_board_dashboard2"
+                                    android:contentDescription="Sakit"/>
+
+                                <!-- Jumlah Sakit -->
+                                <TextView
+                                    android:id="@+id/txt_alpha_count"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="3"
+                                    android:textStyle="bold"
+                                    android:textSize="18sp"
+                                    android:textColor="@color/white"
+                                    android:layout_marginEnd="21dp"
+                                    android:layout_marginBottom="5dp"
+                                    android:layout_gravity="end|center"/>
+
+                                <TextView
+                                    android:id="@+id/txt_sakit_count"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="2"
+                                    android:textStyle="bold"
+                                    android:textSize="18sp"
+                                    android:textColor="@color/white"
+                                    android:layout_marginEnd="140dp"
+                                    android:layout_marginBottom="5dp"
+                                    android:layout_gravity="end|center_vertical"/>
+
+                                <TextView
+                                    android:id="@+id/txt_izin_count"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="1"
+                                    android:textStyle="bold"
+                                    android:textSize="18sp"
+                                    android:textColor="@color/white"
+                                    android:layout_marginEnd="260dp"
+                                    android:layout_marginBottom="5dp"
+                                    android:layout_gravity="end|center_vertical"/>
+
+                            </FrameLayout>
+                        </GridLayout>
+                    </LinearLayout>
+                    <FrameLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:background="@drawable/jam_dashboard_guru"
+                        android:layout_gravity="center_horizontal"
+                        android:layout_marginTop="10dp">
+
+                        <!-- Container vertikal agar layout kedua berada di bawah -->
+                        <LinearLayout
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical">
+
+                            <!-- ====== LAYOUT PERTAMA ====== -->
+                            <LinearLayout
+                                android:layout_width="350dp"
+                                android:layout_height="wrap_content"
+                                android:layout_gravity="center_horizontal"
+                                android:layout_marginTop="10dp">
+
+                                <!-- Bagian kiri -->
+                                <LinearLayout
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginStart="15dp"
+                                    android:layout_gravity="start">
+
+                                    <!-- icon kalender -->
+                                    <ImageView
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:adjustViewBounds="true"
+                                        android:src="@drawable/calendar_month" />
+
+                                    <!-- Tanggal Hari ini -->
+                                    <TextView
+                                        android:id="@+id/txtTanggalDiJamLayout"
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:layout_marginStart="10dp"
+                                        android:layout_gravity="center_vertical"
+                                        android:text="Kamis, 1 Januari 2026"
+                                        android:textSize="12sp"
+                                        android:textStyle="bold"
+                                        android:textColor="@android:color/black"/>
+                                </LinearLayout>
+
+                                <LinearLayout
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginLeft="120dp">
+
+                                    <!-- icon jam -->
+                                    <ImageView
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:adjustViewBounds="true"
+                                        android:src="@drawable/jam_icon" />
+
+                                    <!-- Waktu Saat Ini Live -->
+                                    <TextView
+                                        android:id="@+id/txtWaktuLive"
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:layout_marginStart="10dp"
+                                        android:text="00:00"
+                                        android:layout_gravity="center_vertical"
+                                        android:textStyle="bold"
+                                        android:textSize="12sp"
+                                        android:textColor="@android:color/black"/>
+                                </LinearLayout>
+                            </LinearLayout>
+
+
+                            <!-- ====== BAGIAN WAKTU ====== -->
+                            <LinearLayout
+                                android:layout_width="350dp"
+                                android:layout_height="wrap_content"
+                                android:orientation="horizontal"
+                                android:layout_marginTop="18dp">
+
+                                <!-- Jam Masuk -->
+                                <TextView
+                                    android:id="@+id/txtJamMasuk"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginStart="105dp"
+                                    android:layout_gravity="center_vertical"
+                                    android:text="00:00:00"
+                                    android:textSize="15sp"
+                                    android:textStyle="bold"
+                                    android:textColor="#001F3E"/>
+
+                                <!-- Jam Pulang -->
+                                <TextView
+                                    android:id="@+id/txtJamPulang"
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:layout_gravity="end"
+                                    android:layout_marginStart="120dp"
+                                    android:text="00:00:00"
+                                    android:textStyle="bold"
+                                    android:textSize="15sp"
+                                    android:textColor="#001F3E" />
+                            </LinearLayout>
+                        </LinearLayout>
+                    </FrameLayout>
+
+
+                    <!-- Group 2:-->
+                    <LinearLayout
+                        android:id="@+id/group2"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:layout_gravity="center_horizontal"
+                        android:gravity="center"
+                        android:layout_marginTop="16dp">
+
+                        <ImageView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:adjustViewBounds="true"
+                            android:layout_gravity="start"
+                            android:layout_marginStart="10dp"
+                            android:layout_marginTop="5dp"
+                            android:layout_marginBottom="10dp"
+                            android:src="@drawable/banner_jadwal_mengajar" />
+
+                        <LinearLayout
+                            android:layout_width="365dp"
+                            android:layout_height="wrap_content"
+                            android:layout_margin="2.5dp"
+                            android:orientation="vertical"
+                            android:padding="8dp"
+                            android:background="@drawable/konten_jadwal_wakel">
+
+                            <LinearLayout
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:paddingBottom="15dp"
+                                android:layout_marginTop="10dp"
+                                android:orientation="horizontal">
+                                <ImageView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:adjustViewBounds="true"
+                                    android:layout_gravity="center_vertical"
+                                    android:layout_marginStart="15dp"
+                                    android:paddingRight="10dp"
+                                    android:src="@drawable/bell" />
+
+                                <TextView
+                                    android:id="@+id/txtTitle_1"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_gravity="center_vertical"
+                                    android:text="Kelas yang pelajaran hari ini"
+                                    android:textStyle="bold"
+                                    android:textColor="@color/black"
+                                    android:textSize="16sp"/>
+                            </LinearLayout>
+
+
+                            <!-- ========== list Jadwal guru ========== -->
+                            <androidx.recyclerview.widget.RecyclerView
+                                android:id="@+id/recyclerJadwal"
+                                android:layout_width="340dp"
+                                android:layout_height="200dp"
+                                android:minHeight="200dp"
+                                android:scrollbars="vertical"
+                                android:overScrollMode="always"
+                                android:nestedScrollingEnabled="true"
+                                tools:listitem="@layout/item_jadwal_guru" />
+
+                        </LinearLayout>
+                    </LinearLayout>
+
+                    <!-- Group 3:-->
+                    <LinearLayout
+                        android:id="@+id/group3"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:layout_gravity="center_horizontal"
+                        android:gravity="center"
+                        android:layout_marginTop="16dp"
+                        android:layout_marginBottom="16dp">
+
+                        <ImageView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:adjustViewBounds="true"
+                            android:layout_gravity="start"
+                            android:layout_marginStart="15dp"
+                            android:layout_marginTop="5dp"
+                            android:layout_marginBottom="10dp"
+                            android:src="@drawable/banner_riwayat_kehadiran" />
+
+                        <LinearLayout
+                            android:layout_width="380dp"
+                            android:layout_height="365dp"
+                            android:layout_margin="2.5dp"
+                            android:orientation="vertical"
+                            android:padding="8dp"
+                            android:background="@drawable/kotak_riwayat_wakel">
+
+                            <LinearLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:paddingBottom="15dp"
+                                android:layout_marginTop="10dp"
+                                android:orientation="vertical">
+
+                                <!-- ========== list Jadwal guru ========== -->
+                                <androidx.recyclerview.widget.RecyclerView
+                                    android:id="@+id/recyclerJadwal1"
+                                    android:layout_width="330dp"
+                                    android:layout_gravity="center_horizontal"
+                                    android:layout_height="340dp"
+                                    android:minHeight="200dp"
+                                    android:scrollbars="vertical"
+                                    android:overScrollMode="always"
+                                    tools:listitem="@layout/bar_riwayat_siswa_wakel"/>
+                            </LinearLayout>
+
+                        </LinearLayout>
+                    </LinearLayout>
+
+                </LinearLayout>
+            </FrameLayout>
+        </ScrollView>
+
+        <!-- Footer navigation - OVERLAY -->
+        <LinearLayout
+            android:id="@+id/navigationBar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom"
+            android:orientation="horizontal"
+            android:gravity="center"
+            android:paddingBottom="8dp"
+            android:background="@drawable/footer_universal"
+            android:elevation="7dp">
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_marginTop="10dp"
+                android:gravity="center">
+
+                <ImageButton
+                    android:id="@+id/btnHome"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/home_active"
+                    android:background="@null"
+                    android:layout_marginHorizontal="11dp"
+                    android:scaleType="fitCenter"
+                    android:contentDescription="Home" />
+
+                <View
+                    android:layout_marginTop="7dp"
+                    android:layout_width="50dp"
+                    android:layout_height="8dp"
+                    android:background="@drawable/penanda_halaman_universal" />
+            </LinearLayout>
+
+            <ImageButton
+                android:id="@+id/btnCalendar"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="11dp"
+                android:src="@drawable/content_paste"
+                android:scaleType="fitCenter"
+                android:background="@null"
+                android:contentDescription="Riwayat" />
+
+            <ImageButton
+                android:id="@+id/btnChart"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="11dp"
+                android:src="@drawable/bar_chart"
+                android:scaleType="fitCenter"
+                android:background="@null"
+                android:contentDescription="Chart" />
+
+            <ImageButton
+                android:id="@+id/btnNotif"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="11dp"
+                android:src="@drawable/notifications"
+                android:scaleType="fitCenter"
+                android:background="@null"
+                android:contentDescription="Notification" />
+        </LinearLayout>
+    </FrameLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

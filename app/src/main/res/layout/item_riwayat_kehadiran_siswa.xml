@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="50dp"
+    android:layout_gravity="center_horizontal"
+    android:padding="6dp"
+    android:layout_marginBottom="3dp"
+    android:background="@drawable/bg_item_notif_siswa">
+
+    <!-- Container untuk Mapel dan Pukul -->
+    <LinearLayout
+        android:id="@+id/containerKiri"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="20dp"
+        android:orientation="vertical"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <TextView
+            android:id="@+id/Session"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Mapel 1"
+            android:gravity="center"
+            android:textAlignment="center"
+            android:layout_marginTop="7dp"
+            android:textStyle="bold"
+            android:textColor="@color/black"
+            android:textSize="14sp"/>
+    </LinearLayout>
+
+    <!-- Container untuk Kelas dan Durasi - TETAP DI KANAN -->
+    <LinearLayout
+        android:id="@+id/containerKanan"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:gravity="start"
+        android:layout_marginStart="5dp"
+        app:layout_constraintStart_toEndOf="@id/containerKiri"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <TextView
+            android:id="@+id/MataPelajaran"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="B. Indonesia"
+            android:textColor="@color/black"
+            android:layout_marginTop="3dp"
+            android:textStyle="bold"
+            android:layout_marginStart="140dp"
+            android:textSize="9sp"/>
+
+        <TextView
+            android:id="@+id/TextKeteranganAbsen"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Siswa Hadir Tepat Waktu"
+            android:layout_gravity="start"
+            android:layout_marginStart="5dp"
+            android:layout_marginTop="3dp"
+            android:textColor="@color/black"
+            android:textSize="10sp"/>
+    </LinearLayout>
+
+    <ImageView
+        android:id="@+id/BadgeKehadiran"
+        android:layout_width="45dp"
+        android:layout_height="18dp"
+        android:layout_marginEnd="5dp"
+        android:layout_marginTop="7dp"
+        android:src="@drawable/siswa_hadir_wakel"
+        android:contentDescription="Siswa Hadir Wakel"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"/>
+
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>

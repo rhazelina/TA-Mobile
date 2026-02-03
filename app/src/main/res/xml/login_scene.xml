@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<MotionScene
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:motion="http://schemas.android.com/apk/res-auto">
+
+    <!-- ===== POSISI AWAL ===== -->
+    <ConstraintSet android:id="@+id/start">
+        <!-- Constraint untuk seluruh container -->
+        <Constraint
+            android:id="@+id/mainContainer"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:translationY="0dp" />
+
+        <!-- Atau jika mau animasi untuk specific view -->
+        <Constraint
+            android:id="@+id/loginForm"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:translationY="0dp" />
+    </ConstraintSet>
+
+    <!-- ===== POSISI AKHIR (NAIK KE ATAS) ===== -->
+    <ConstraintSet android:id="@+id/end">
+        <Constraint
+            android:id="@+id/mainContainer"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:translationY="-300dp" />
+
+        <Constraint
+            android:id="@+id/loginForm"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:translationY="-300dp" />
+    </ConstraintSet>
+
+    <!-- ===== SWIPE LOCKSCREEN ===== -->
+    <Transition
+        motion:constraintSetStart="@id/start"
+        motion:constraintSetEnd="@id/end"
+        motion:duration="350">
+
+        <OnSwipe
+            motion:dragDirection="dragUp"
+            motion:touchAnchorId="@+id/mainContainer"
+            motion:touchAnchorSide="top"
+            motion:dragThreshold="0.3"/>
+
+    </Transition>
+
+</MotionScene>

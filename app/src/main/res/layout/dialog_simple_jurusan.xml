@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="16dp">
+
+    <!-- Nama Jurusan -->
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Nama Jurusan (Singkatan)"
+        android:textColor="#000000"
+        android:textSize="14sp"
+        android:layout_marginBottom="4dp" />
+
+    <EditText
+        android:id="@+id/etNamaJurusan"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Contoh: RPL"
+        android:padding="12dp"
+        android:background="@drawable/edittext_bg"
+        android:textSize="14sp"
+        android:layout_marginBottom="16dp" />
+
+    <!-- Jurusan Lengkap -->
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Jurusan Lengkap"
+        android:textColor="#000000"
+        android:textSize="14sp"
+        android:layout_marginBottom="4dp" />
+
+    <EditText
+        android:id="@+id/etJurusan"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Contoh: Rekayasa Perangkat Lunak"
+        android:padding="12dp"
+        android:background="@drawable/edittext_bg"
+        android:textSize="14sp"
+        android:layout_marginBottom="16dp" />
+
+    <!-- Kelas -->
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Kelas"
+        android:textColor="#000000"
+        android:textSize="14sp"
+        android:layout_marginBottom="4dp" />
+
+    <EditText
+        android:id="@+id/etKelas"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Contoh: XII"
+        android:padding="12dp"
+        android:background="@drawable/edittext_bg"
+        android:textSize="14sp"
+        android:layout_marginBottom="16dp" />
+
+    <!-- Wali Kelas -->
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Wali Kelas"
+        android:textColor="#000000"
+        android:textSize="14sp"
+        android:layout_marginBottom="4dp" />
+
+    <EditText
+        android:id="@+id/etWaliKelas"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Contoh: Budi Santoso"
+        android:padding="12dp"
+        android:background="@drawable/edittext_bg"
+        android:textSize="14sp" />
+
+</LinearLayout>

@@ -1,0 +1,199 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <!-- ========== PERMISSIONS ========== -->
+    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"
+        android:maxSdkVersion="32" />
+    <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
+    <uses-permission android:name="android.permission.VIBRATE" />
+    <uses-permission android:name="android.permission.INTERNET" />
+
+    <!-- ========== FEATURES ========== -->
+    <uses-feature android:name="android.hardware.camera" android:required="false" />
+    <uses-feature android:name="android.hardware.camera.autofocus" android:required="false" />
+
+    <application
+        android:allowBackup="true"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:supportsRtl="true"
+        android:theme="@style/Theme.Ritamesa"
+        android:usesCleartextTraffic="true"
+        tools:targetApi="31">
+
+        <!-- ========== LOGIN AWAL (LAUNCHER) ========== -->
+        <activity
+            android:name=".LoginAwal"
+            android:exported="true"
+            android:screenOrientation="portrait">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <!-- ========== LOGIN LANJUT ========== -->
+        <activity
+            android:name=".LoginLanjut"
+            android:exported="false"
+            android:screenOrientation="portrait" />
+
+        <!-- ========== DASHBOARD ACTIVITIES ========== -->
+        <activity
+            android:name=".Dashboard"
+            android:exported="false"
+            android:screenOrientation="portrait" />
+
+        <activity
+            android:name=".DashboardGuruActivity"
+            android:exported="false"
+            android:screenOrientation="portrait" />
+
+        <activity
+            android:name=".DashboardWaliKelasActivity"
+            android:exported="false"
+            android:screenOrientation="portrait" />
+
+        <!-- ========== DASHBOARD SISWA & PENGURUS ========== -->
+        <activity
+            android:name=".DashboardSiswaActivity"
+            android:exported="false"
+            android:screenOrientation="portrait" />
+
+        <!-- ========== DETAIL ACTIVITIES ========== -->
+        <activity
+            android:name=".DetailJadwalGuruActivity"
+            android:exported="false"
+            android:screenOrientation="portrait" />
+
+        <activity
+            android:name=".DetailJadwalWakelActivity"
+            android:exported="false"
+            android:screenOrientation="portrait" />
+
+        <activity
+            android:name=".CameraQRActivity"
+            android:exported="false"
+            android:screenOrientation="portrait" />
+
+        <activity
+            android:name=".AbsensiSiswaActivity"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar"
+            android:exported="false" />
+
+        <!-- ========== RIWAYAT ACTIVITIES ========== -->
+        <activity
+            android:name=".RiwayatKehadiranGuruActivity"
+            android:exported="false"
+            android:screenOrientation="portrait" />
+
+        <activity
+            android:name=".RiwayatKehadiranKelasActivity"
+            android:exported="false"
+            android:screenOrientation="portrait" />
+
+        <!-- ========== SISWA & PENGURUS ACTIVITIES ========== -->
+        <activity
+            android:name=".RiwayatKehadiranKelasSiswaActivity"
+            android:exported="false"
+            android:screenOrientation="portrait" />
+
+        <!-- ACTIVITY BARU UNTUK PENGURUS -->
+        <activity
+            android:name=".RiwayatKehadiranKelasPengurusActivity"
+            android:exported="false"
+            android:screenOrientation="portrait" />
+
+        <activity
+            android:name=".JadwalHarianSiswaActivity"
+            android:exported="false"
+            android:screenOrientation="portrait" />
+
+        <!-- ========== TINDAK LANJUT ACTIVITIES ========== -->
+        <activity
+            android:name=".TindakLanjutGuruActivity"
+            android:exported="false"
+            android:screenOrientation="portrait" />
+
+        <activity
+            android:name=".TindakLanjutWaliKelasActivity"
+            android:exported="false"
+            android:screenOrientation="portrait" />
+
+        <!-- ========== NOTIFIKASI ACTIVITIES ========== -->
+        <activity
+            android:name=".NotifikasiGuruActivity"
+            android:exported="false"
+            android:screenOrientation="portrait" />
+
+        <activity
+            android:name=".NotifikasiWaliKelasActivity"
+            android:exported="false"
+            android:screenOrientation="portrait" />
+
+        <!-- ========== REKAP ACTIVITIES (DARI MESARITAMOBILE) ========== -->
+        <activity
+            android:name=".RekapKehadiranSiswa"
+            android:exported="false"
+            android:screenOrientation="portrait" />
+
+        <activity
+            android:name=".RekapKehadiranGuru"
+            android:exported="false"
+            android:screenOrientation="portrait" />
+
+        <!-- ========== STATISTIK ACTIVITIES (DARI MESARITAMOBILE) ========== -->
+        <activity
+            android:name=".StatistikKehadiran"
+            android:exported="false"
+            android:screenOrientation="portrait" />
+
+        <activity
+            android:name=".NotifikasiSemua"
+            android:exported="false"
+            android:screenOrientation="portrait" />
+
+        <!-- ========== RIWAYAT ACTIVITIES (DARI MESARITAMOBILE) ========== -->
+        <activity
+            android:name=".RiwayatKehadiranSiswa"
+            android:exported="false"
+            android:screenOrientation="portrait" />
+
+        <!-- ========== TOTAL ACTIVITIES (DARI MESARITAMOBILE) ========== -->
+        <activity
+            android:name=".TotalGuru"
+            android:exported="false"
+            android:screenOrientation="portrait" />
+
+        <activity
+            android:name=".TotalJurusan"
+            android:exported="false"
+            android:screenOrientation="portrait" />
+
+        <activity
+            android:name=".TotalKelas"
+            android:exported="false"
+            android:screenOrientation="portrait" />
+
+        <activity
+            android:name=".TotalSiswa"
+            android:exported="false"
+            android:screenOrientation="portrait" />
+
+        <!-- ========== TAMBAH & EDIT DATA (DARI MESARITAMOBILE) ========== -->
+        <activity
+            android:name=".TambahDataSiswa"
+            android:exported="false"
+            android:screenOrientation="portrait" />
+
+        <activity
+            android:name=".EditDataSiswa"
+            android:exported="false"
+            android:screenOrientation="portrait" />
+
+    </application>
+
+</manifest>

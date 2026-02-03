@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="360dp"
+    android:layout_height="65dp"
+    android:background="@drawable/item_list_mapel_siswa"
+    android:orientation="horizontal"
+    android:layout_gravity="center_horizontal"
+    android:padding="12dp">
+
+    <!-- BAGIAN KIRI -->
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:layout_marginLeft="85dp"
+        android:layout_marginTop="-2dp"
+        android:orientation="vertical">
+
+        <!-- NAMA + JURUSAN -->
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/textmapelsiswa"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="B. Indonesia"
+                android:textStyle="bold"
+                android:textSize="16sp"
+                android:textColor="@color/black" />
+
+            <TextView
+                android:id="@+id/session"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Sesi 1"
+                android:textSize="13sp"
+                android:layout_marginTop="-2dp"
+                android:textColor="@color/black" />
+        </LinearLayout>
+    </LinearLayout>
+
+    <!-- JAM KANAN -->
+    <LinearLayout
+        android:id="@+id/linearqr"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical">
+
+        <ImageButton
+            android:id="@+id/btn_qr_render"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="5dp"
+            android:src="@drawable/qr_button_add"
+            android:background="@null"
+            android:contentDescription="QR Button Add"/>
+
+    </LinearLayout>
+</LinearLayout>
