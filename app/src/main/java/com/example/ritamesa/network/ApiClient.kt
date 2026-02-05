@@ -13,6 +13,7 @@ object ApiClient {
     // Untuk emulator: "http://10.0.2.2:8000/api/"
     // Untuk device fisik: "http://192.168.x.x:8000/api/"
     private const val BASE_URL = "http://10.0.2.2:8000/api/"
+    // localhost:8000
     
     private var retrofit: Retrofit? = null
     

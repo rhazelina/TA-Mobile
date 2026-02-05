@@ -3,60 +3,61 @@ package com.example.ritamesa.network
 import retrofit2.Response
 import retrofit2.http.*
 
+// ===================== INTERFACE =====================
 interface ApiService {
-    
+
     // ========== AUTHENTICATION ==========
     @POST("auth/login")
     suspend fun login(@Body request: LoginRequest): Response<LoginResponse>
-    
+
     @POST("auth/logout")
     suspend fun logout(): Response<LogoutResponse>
-    
+
     @GET("me")
     suspend fun getMe(): Response<UserResponse>
-    
+
     // ========== DASHBOARD ==========
     @GET("me/dashboard/summary")
     suspend fun getStudentDashboard(): Response<StudentDashboardResponse>
-    
+
     @GET("me/dashboard/teacher-summary")
     suspend fun getTeacherDashboard(): Response<TeacherDashboardResponse>
-    
+
     @GET("me/homeroom/dashboard")
     suspend fun getHomeroomDashboard(): Response<HomeroomDashboardResponse>
-    
+
     // ========== ATTENDANCE ==========
     @POST("attendance/scan")
     suspend fun scanQR(@Body request: ScanQRRequest): Response<ScanQRResponse>
-    
+
     @GET("me/attendance")
     suspend fun getMyAttendance(
         @Query("month") month: Int?,
         @Query("year") year: Int?
     ): Response<AttendanceHistoryResponse>
-    
+
     @GET("me/attendance/teaching")
     suspend fun getTeacherAttendance(
         @Query("date") date: String?,
         @Query("status") status: String?
     ): Response<TeacherAttendanceResponse>
-    
+
     // ========== FOLLOW-UP ==========
     @GET("me/students/follow-up")
     suspend fun getStudentsFollowUp(
         @Query("search") search: String?
     ): Response<FollowUpResponse>
-    
+
     // ========== NOTIFICATIONS ==========
     @GET("me/notifications")
     suspend fun getNotifications(
         @Query("date") date: String?
     ): Response<NotificationResponse>
-    
+
     // ========== SCHEDULES ==========
     @GET("me/schedules")
     suspend fun getMySchedules(): Response<ScheduleResponse>
-    
+
     // ========== TEACHERS ==========
     @GET("teachers")
     suspend fun getTeachers(
@@ -64,7 +65,9 @@ interface ApiService {
     ): Response<TeachersResponse>
 }
 
-// ========== REQUEST DATA CLASSES ==========
+// ===================== DATA CLASSES =====================
+
+// ---------- REQUEST ----------
 data class LoginRequest(
     val email: String,
     val password: String,
@@ -77,7 +80,7 @@ data class ScanQRRequest(
     val longitude: Double?
 )
 
-// ========== RESPONSE DATA CLASSES ==========
+// ---------- RESPONSE ----------
 data class LoginResponse(
     val message: String,
     val token: String,
@@ -111,6 +114,7 @@ data class UserProfile(
     val photo_url: String?
 )
 
+// ---------- STUDENT DASHBOARD ----------
 data class StudentDashboardResponse(
     val date: String,
     val day_name: String,
@@ -144,6 +148,7 @@ data class ScheduleItem(
     val check_in_time: String?
 )
 
+// ---------- TEACHER DASHBOARD ----------
 data class TeacherDashboardResponse(
     val date: String,
     val day_name: String,
@@ -164,7 +169,8 @@ data class AttendanceSummary(
     val present: Int,
     val sick: Int,
     val excused: Int,
-    val absent: Int
+    val absent: Int,
+    val late: Int? = null // optional field (to support both student & teacher)
 )
 
 data class TeacherScheduleItem(
@@ -176,6 +182,7 @@ data class TeacherScheduleItem(
     val end_time: String
 )
 
+// ---------- HOMEROOM DASHBOARD ----------
 data class HomeroomDashboardResponse(
     val date: String,
     val homeroom_class: HomeroomClass,
@@ -189,6 +196,7 @@ data class HomeroomClass(
     val total_students: Int
 )
 
+// ---------- ATTENDANCE ----------
 data class ScanQRResponse(
     val message: String,
     val status: String,
@@ -232,6 +240,7 @@ data class TeacherAttendanceRecord(
     val status_label: String
 )
 
+// ---------- FOLLOW-UP ----------
 data class FollowUpResponse(
     val data: List<FollowUpStudent>
 )
@@ -257,6 +266,7 @@ data class Badge(
     val label: String
 )
 
+// ---------- NOTIFICATIONS ----------
 data class NotificationResponse(
     val date: String,
     val notifications: List<Notification>
@@ -271,10 +281,12 @@ data class Notification(
     val created_at: String
 )
 
+// ---------- SCHEDULES ----------
 data class ScheduleResponse(
     val data: List<ScheduleItem>
 )
 
+// ---------- TEACHERS ----------
 data class TeachersResponse(
     val data: List<Teacher>
 )

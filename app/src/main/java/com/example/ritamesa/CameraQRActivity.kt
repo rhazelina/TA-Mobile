@@ -246,10 +246,10 @@ class CameraQRActivity : AppCompatActivity() {
             // Navigate to old activity (if exists)
             try {
                 val intent = Intent(this, AbsensiSiswaActivity::class.java).apply {
-                    putExtra("kelas", kelas)
-                    putExtra("mapel", mapel)
-                    putExtra("tanggal", tanggal)
-                    putExtra("jam", jam)
+                    putExtra(AbsensiSiswaActivity.EXTRA_KELAS, kelas)
+                    putExtra(AbsensiSiswaActivity.EXTRA_MAPEL, mapel)
+                    putExtra(AbsensiSiswaActivity.EXTRA_TANGGAL, tanggal)
+                    putExtra(AbsensiSiswaActivity.EXTRA_JAM, jam)
                 }
                 startActivity(intent)
                 finish()

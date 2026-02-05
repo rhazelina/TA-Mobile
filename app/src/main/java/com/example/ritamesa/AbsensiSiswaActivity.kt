@@ -11,6 +11,13 @@ import com.example.ritamesa.AbsensiAdapter.SiswaData
 
 class AbsensiSiswaActivity : AppCompatActivity() {
 
+    companion object {
+        const val EXTRA_MAPEL = "mapel"
+        const val EXTRA_KELAS = "kelas"
+        const val EXTRA_TANGGAL = "tanggal"
+        const val EXTRA_JAM = "jam"
+    }
+
     private lateinit var adapter: AbsensiAdapter
     private lateinit var rvListAbsen: RecyclerView
     private lateinit var tvNamaMapel: TextView
@@ -46,21 +53,10 @@ class AbsensiSiswaActivity : AppCompatActivity() {
     }
 
     private fun getDataFromIntent() {
-        mapel = intent.getStringExtra(CameraQRActivity.EXTRA_MAPEL) ?:
-                intent.getStringExtra("MATA_PELAJARAN") ?:
-                "Matematika"
-
-        kelas = intent.getStringExtra(CameraQRActivity.EXTRA_KELAS) ?:
-                intent.getStringExtra("KELAS") ?:
-                "XI Mekatronika 2"
-
-        tanggal = intent.getStringExtra("tanggal") ?:
-                intent.getStringExtra("TANGGAL") ?:
-                getCurrentDate()
-
-        jam = intent.getStringExtra("jam") ?:
-                intent.getStringExtra("JAM") ?:
-                "00:00-00:00"
+        mapel = intent.getStringExtra(EXTRA_MAPEL) ?: "Matematika"
+        kelas = intent.getStringExtra(EXTRA_KELAS) ?: "XI Mekatronika 2"
+        tanggal = intent.getStringExtra(EXTRA_TANGGAL) ?: getCurrentDate()
+        jam = intent.getStringExtra(EXTRA_JAM) ?: "00:00-00:00"
 
         tvNamaMapel.text = mapel
         tvKelas.text = kelas
