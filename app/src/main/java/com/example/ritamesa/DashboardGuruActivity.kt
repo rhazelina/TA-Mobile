@@ -1,31 +1,42 @@
 package com.example.ritamesa
 
+import android.app.AlertDialog
 import android.content.Intent
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.util.Log
 import android.widget.ImageButton
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.example.ritamesa.network.ApiClient
+import com.example.ritamesa.network.SessionManager
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 import java.util.TimeZone
-import java.util.concurrent.Executors
-import java.util.concurrent.TimeUnit
 
 class DashboardGuruActivity : AppCompatActivity() {
+
+    companion object {
+        private const val TAG = "DashboardGuruActivity"
+    }
+
+    // Session and API
+    private lateinit var sessionManager: SessionManager
 
     // Deklarasi komponen UI
     private lateinit var txtTanggalSekarang: TextView
     private lateinit var txtWaktuLive: TextView
     private lateinit var txtJamMasuk: TextView
     private lateinit var txtJamPulang: TextView
-
-    // TAMBAHKAN INI - TextView tanggal di jam layout
     private lateinit var txtTanggalDiJamLayout: TextView
 
     // Counter kehadiran
@@ -48,18 +59,17 @@ class DashboardGuruActivity : AppCompatActivity() {
     private val jamMasukDatabase = "07:00:00"
     private val jamPulangDatabase = "15:00:00"
 
-    // Data kehadiran (data dummy)
-    private var hadirCount = 0
-    private var izinCount = 0
-    private var sakitCount = 0
-    private var alphaCount = 0
-
-    // Executor untuk scheduled tasks
-    private val executor = Executors.newSingleThreadScheduledExecutor()
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.dashboard_guru)
+
+        sessionManager = SessionManager(this)
+
+        // Check if logged in
+        if (!sessionManager.isLoggedIn()) {
+            navigateToLogin()
+            return
+        }
 
         // Inisialisasi komponen UI
         initViews()
@@ -67,17 +77,17 @@ class DashboardGuruActivity : AppCompatActivity() {
         // Setup tanggal dan waktu
         setupDateTime()
 
-        // Setup kehadiran siswa
-        setupKehadiran()
-
         // Setup RecyclerView untuk jadwal
         setupRecyclerView()
 
-        // Setup footer navigation (UNIVERSAL - sesuai layout)
+        // Load dashboard data from API
+        loadDashboardData()
+
+        // Setup footer navigation
         setupFooterNavigation()
 
-        // Setup button click listeners untuk tombol kehadiran (bukan footer)
-        setupKehadiranButtons()
+        // Setup logout button (if exists in layout)
+        setupLogoutButton()
     }
 
     private fun initViews() {
@@ -87,9 +97,7 @@ class DashboardGuruActivity : AppCompatActivity() {
             txtWaktuLive = findViewById(R.id.txtWaktuLive)
             txtJamMasuk = findViewById(R.id.txtJamMasuk)
             txtJamPulang = findViewById(R.id.txtJamPulang)
-
-            // TAMBAHKAN INI - TextView tanggal di jam layout
-            txtTanggalDiJamLayout = findViewById(R.id.txtTanggalDiJamLayout) // Beri ID di XML!
+            txtTanggalDiJamLayout = findViewById(R.id.txtTanggalDiJamLayout)
 
             // Counter kehadiran
             txtHadirCount = findViewById(R.id.txt_hadir_count)
@@ -97,7 +105,7 @@ class DashboardGuruActivity : AppCompatActivity() {
             txtSakitCount = findViewById(R.id.txt_sakit_count)
             txtAlphaCount = findViewById(R.id.txt_alpha_count)
 
-            // RecyclerView - PERBAIKAN: cek ID yang benar
+            // RecyclerView
             recyclerJadwal = findViewById(R.id.recyclerJadwal)
         } catch (e: Exception) {
             Toast.makeText(this, "Error initViews: ${e.message}", Toast.LENGTH_LONG).show()
@@ -107,26 +115,24 @@ class DashboardGuruActivity : AppCompatActivity() {
 
     private fun setupDateTime() {
         try {
-            // Format tanggal Indonesia (PERBAIKAN: gunakan Locale.forLanguageTag)
+            // Format tanggal Indonesia
             val dateFormat = SimpleDateFormat("EEEE, d MMMM yyyy", Locale.forLanguageTag("id-ID"))
             val currentDate = Date()
             val tanggalHariIni = dateFormat.format(currentDate)
 
-            // Set tanggal - UPDATE SEMUA TEXTVIEW TANGGAL
+            // Set tanggal
             txtTanggalSekarang.text = tanggalHariIni
-
-            // TAMBAHKAN INI - Update juga tanggal di layout jam
             txtTanggalDiJamLayout.text = tanggalHariIni
 
-            // Set jam pembelajaran - TETAP sesuai permintaan
+            // Set jam pembelajaran
             txtJamMasuk.text = jamMasukDatabase
             txtJamPulang.text = jamPulangDatabase
 
-            // Setup waktu live yang berjalan terus (WIB - Indonesia Barat)
+            // Setup waktu live yang berjalan terus (WIB)
             runnable = object : Runnable {
                 override fun run() {
                     val timeFormat = SimpleDateFormat("HH:mm", Locale.getDefault())
-                    timeFormat.timeZone = TimeZone.getTimeZone("Asia/Jakarta") // WIB timezone
+                    timeFormat.timeZone = TimeZone.getTimeZone("Asia/Jakarta")
                     val currentTime = timeFormat.format(Date())
                     txtWaktuLive.text = currentTime
                     handler.postDelayed(this, 1000)
@@ -140,51 +146,79 @@ class DashboardGuruActivity : AppCompatActivity() {
         }
     }
 
-    private fun setupKehadiran() {
-        try {
-            // Data dummy kehadiran
-            hadirCount = 25
-            izinCount = 1
-            sakitCount = 1
-            alphaCount = 3
+    private fun loadDashboardData() {
+        CoroutineScope(Dispatchers.IO).launch {
+            try {
+                val apiService = ApiClient.getInstance(this@DashboardGuruActivity)
+                val response = apiService.getTeacherDashboard()
 
-            // Update tampilan
-            updateKehadiranCount()
-
-            // PERBAIKAN: Ganti scheduleAtFixedRate dengan schedule (lebih aman untuk Android)
-            executor.schedule({
-                runOnUiThread {
-                    // Simulasi perubahan kecil pada data
-                    hadirCount += (0..2).random()
-                    izinCount += (0..1).random()
-                    sakitCount += (0..1).random()
-                    alphaCount += (0..1).random()
-                    updateKehadiranCount()
+                withContext(Dispatchers.Main) {
+                    if (response.isSuccessful && response.body() != null) {
+                        val data = response.body()!!
+                        updateUIWithData(data)
+                    } else {
+                        // Fallback to dummy data
+                        Log.w(TAG, "API failed, using dummy data")
+                        loadDummyData()
+                    }
                 }
-            }, 30, TimeUnit.SECONDS)
-        } catch (e: Exception) {
-            Toast.makeText(this, "Error setupKehadiran: ${e.message}", Toast.LENGTH_LONG).show()
+            } catch (e: Exception) {
+                withContext(Dispatchers.Main) {
+                    Log.e(TAG, "Error loading dashboard: ${e.message}", e)
+                    // Fallback to dummy data
+                    loadDummyData()
+                }
+            }
         }
     }
 
-    private fun updateKehadiranCount() {
+    private fun updateUIWithData(data: com.example.ritamesa.network.TeacherDashboardResponse) {
         try {
-            txtHadirCount.text = hadirCount.toString()
-            txtIzinCount.text = izinCount.toString()
-            txtSakitCount.text = sakitCount.toString()
-            txtAlphaCount.text = alphaCount.toString()
+            // Update counter kehadiran
+            txtHadirCount.text = data.attendance_summary.present.toString()
+            txtIzinCount.text = data.attendance_summary.excused.toString()
+            txtSakitCount.text = data.attendance_summary.sick.toString()
+            txtAlphaCount.text = data.attendance_summary.absent.toString()
+
+            // Update jadwal hari ini
+            jadwalHariIni.clear()
+            data.schedule_today.forEachIndexed { index, schedule ->
+                jadwalHariIni.add(
+                    JadwalItem(
+                        id = index + 1,
+                        mataPelajaran = schedule.subject,
+                        waktuPelajaran = "${schedule.start_time} - ${schedule.end_time}",
+                        kelas = schedule.class_name,
+                        jam = "${schedule.start_time} - ${schedule.end_time}",
+                        idKelas = schedule.class_id?.toString() ?: "",
+                        idMapel = schedule.subject_id?.toString() ?: ""
+                    )
+                )
+            }
+            recyclerJadwal.adapter?.notifyDataSetChanged()
+
         } catch (e: Exception) {
-            // Log error
+            Log.e(TAG, "Error updating UI: ${e.message}", e)
+            Toast.makeText(this, "Error menampilkan data", Toast.LENGTH_SHORT).show()
         }
+    }
+
+    private fun loadDummyData() {
+        // Data dummy kehadiran
+        txtHadirCount.text = "25"
+        txtIzinCount.text = "1"
+        txtSakitCount.text = "1"
+        txtAlphaCount.text = "3"
+
+        // Data dummy jadwal
+        jadwalHariIni.clear()
+        jadwalHariIni.addAll(generateDummyJadwal())
+        recyclerJadwal.adapter?.notifyDataSetChanged()
     }
 
     private fun setupRecyclerView() {
         try {
-            // Bersihkan dan isi data dummy yang terstruktur
-            jadwalHariIni.clear()
-            jadwalHariIni.addAll(generateDummyJadwal())
-
-            // Setup adapter - button tampilkan ke DetailJadwalGuruActivity
+            // Setup adapter
             val jadwalAdapter = JadwalAdapter(jadwalHariIni) { jadwal ->
                 navigateToDetailJadwalGuru(jadwal)
             }
@@ -198,74 +232,29 @@ class DashboardGuruActivity : AppCompatActivity() {
             recyclerJadwal.setHasFixedSize(true)
         } catch (e: Exception) {
             Toast.makeText(this, "Error setupRecyclerView: ${e.message}", Toast.LENGTH_LONG).show()
-            e.printStackTrace()
         }
     }
 
     private fun generateDummyJadwal(): List<JadwalItem> {
-        val kelasList = listOf(
-            "XI RPL 1", "XI RPL 2", "XI RPL 3",
-            "XI Mekatronika 1", "XI Mekatronika 2",
-            "XI TKJ 1", "XI TKJ 2",
-            "XI DKV 1", "XI DKV 2",
-            "XI Animasi 1", "XI Animasi 2"
+        return listOf(
+            JadwalItem(1, "Matematika", "07:00 - 08:30", "XII RPL 1", "07:00 - 08:30", "1", "1"),
+            JadwalItem(2, "Bahasa Indonesia", "08:30 - 10:00", "XII RPL 2", "08:30 - 10:00", "2", "2"),
+            JadwalItem(3, "Fisika", "10:15 - 11:45", "XII RPL 1", "10:15 - 11:45", "1", "3")
         )
-
-        val mapelList = listOf(
-            "Matematika", "Bahasa Indonesia", "Pemrograman Dasar",
-            "Basis Data", "Fisika", "Kimia", "Sejarah",
-            "Seni Budaya", "PJOK", "Bahasa Inggris", "PKN"
-        )
-
-        // PERBAIKAN: Waktu pelajaran yang bermakna (bukan "Jam ke X")
-        val waktuPelajaranList = listOf(
-            "Jam Pertama", "Jam Kedua", "Jam Ketiga",
-            "Jam Keempat", "Jam Kelima", "Jam Keenam",
-            "Jam Ketujuh", "Jam Kedelapan", "Jam Kesembilan",
-            "Jam Kesepuluh", "Jam Kesebelas"
-        )
-
-        val jadwalList = mutableListOf<JadwalItem>()
-        val waktuMulai = listOf(
-            "07:30", "08:15", "09:00", "09:45", "10:30",
-            "11:15", "12:00", "12:45", "13:30", "14:15", "15:00"
-        )
-        val waktuSelesai = listOf(
-            "08:15", "09:00", "09:45", "10:30", "11:15",
-            "12:00", "12:45", "13:30", "14:15", "15:00", "15:45"
-        )
-
-        for (i in 0 until 11) {
-            jadwalList.add(
-                JadwalItem(
-                    id = i + 1,
-                    mataPelajaran = mapelList[i],
-                    waktuPelajaran = waktuPelajaranList[i], // PERBAIKAN: waktu yang bermakna
-                    kelas = kelasList[i],
-                    jam = "${waktuMulai[i]} - ${waktuSelesai[i]}",
-                    idKelas = kelasList[i].replace(" ", ""),
-                    idMapel = mapelList[i].take(3).uppercase()
-                )
-            )
-        }
-
-        return jadwalList
     }
 
     private fun navigateToDetailJadwalGuru(jadwal: JadwalItem) {
         try {
-            val intent = Intent(this, DetailJadwalGuruActivity::class.java).apply {
-                putExtra("JADWAL_DATA", JadwalData(
-                    mataPelajaran = jadwal.mataPelajaran,
-                    kelas = jadwal.kelas,
-                    jam = jadwal.jam,
-                    waktuPelajaran = jadwal.waktuPelajaran
-                ))
-            }
+            val intent = Intent(this, DetailJadwalGuruActivity::class.java)
+            intent.putExtra("JADWAL_DATA", JadwalData(
+                mataPelajaran = jadwal.mataPelajaran,
+                kelas = jadwal.kelas,
+                jam = jadwal.jam,
+                waktuPelajaran = jadwal.waktuPelajaran
+            ))
             startActivity(intent)
-            Toast.makeText(this, "Membuka detail: ${jadwal.mataPelajaran}", Toast.LENGTH_SHORT).show()
         } catch (e: Exception) {
-            Toast.makeText(this, "Error navigate: ${e.message}", Toast.LENGTH_LONG).show()
+            Toast.makeText(this, "Error: ${e.message}", Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -276,27 +265,21 @@ class DashboardGuruActivity : AppCompatActivity() {
             val btnChart: ImageButton = findViewById(R.id.btnChart)
             val btnNotif: ImageButton = findViewById(R.id.btnNotif)
 
-            // Navigasi sesuai struktur untuk GURU
             btnHome.setOnClickListener {
-                // Sudah di halaman Dashboard Guru, cukup refresh
-                refreshDashboard()
-                Toast.makeText(this, "Dashboard Guru direfresh", Toast.LENGTH_SHORT).show()
+                // Already on home
             }
 
             btnCalendar.setOnClickListener {
-                // Navigasi ke Riwayat Kehadiran GURU
                 val intent = Intent(this, RiwayatKehadiranGuruActivity::class.java)
                 startActivity(intent)
             }
 
             btnChart.setOnClickListener {
-                // Navigasi ke Tindak Lanjut GURU
-                val intent = Intent(this, TindakLanjutGuruActivity::class.java)
+                val intent = Intent(this, RekapKehadiranGuru::class.java)
                 startActivity(intent)
             }
 
             btnNotif.setOnClickListener {
-                // Navigasi ke Notifikasi GURU
                 val intent = Intent(this, NotifikasiGuruActivity::class.java)
                 startActivity(intent)
             }
@@ -305,55 +288,66 @@ class DashboardGuruActivity : AppCompatActivity() {
         }
     }
 
-    private fun setupKehadiranButtons() {
+    private fun setupLogoutButton() {
         try {
-            // Button kehadiran siswa (bukan bagian dari footer)
-            val btnHadir: ImageButton = findViewById(R.id.button_hadir)
-            val btnIzin: ImageButton = findViewById(R.id.button_izin)
-            val btnSakit: ImageButton = findViewById(R.id.button_sakit)
-            val btnAlpha: ImageButton = findViewById(R.id.button_alpha)
+            // If you have a logout button in layout, uncomment and use this
+            // val btnLogout = findViewById<ImageButton>(R.id.btnLogout)
+            // btnLogout?.setOnClickListener {
+            //     showLogoutDialog()
+            // }
 
-            btnHadir.setOnClickListener {
-                Toast.makeText(this, "Lihat siswa Hadir", Toast.LENGTH_SHORT).show()
-            }
-
-            btnIzin.setOnClickListener {
-                Toast.makeText(this, "Lihat siswa Izin", Toast.LENGTH_SHORT).show()
-            }
-
-            btnSakit.setOnClickListener {
-                Toast.makeText(this, "Lihat siswa Sakit", Toast.LENGTH_SHORT).show()
-            }
-
-            btnAlpha.setOnClickListener {
-                Toast.makeText(this, "Lihat siswa Alpha", Toast.LENGTH_SHORT).show()
+            // For now, add long press on profile to logout
+            val profileView = findViewById<android.view.View>(R.id.group)
+            profileView?.setOnLongClickListener {
+                showLogoutDialog()
+                true
             }
         } catch (e: Exception) {
-            Toast.makeText(this, "Error kehadiran buttons: ${e.message}", Toast.LENGTH_LONG).show()
+            Log.e(TAG, "Error setup logout: ${e.message}")
         }
     }
 
-    private fun refreshDashboard() {
-        // Refresh data kehadiran
-        hadirCount = 25
-        izinCount = 1
-        sakitCount = 1
-        alphaCount = 3
-        updateKehadiranCount()
+    private fun showLogoutDialog() {
+        AlertDialog.Builder(this)
+            .setTitle("Logout")
+            .setMessage("Apakah Anda yakin ingin keluar?")
+            .setPositiveButton("Ya") { _, _ ->
+                performLogout()
+            }
+            .setNegativeButton("Tidak", null)
+            .show()
+    }
 
-        // Refresh jadwal
-        jadwalHariIni.clear()
-        jadwalHariIni.addAll(generateDummyJadwal())
+    private fun performLogout() {
+        CoroutineScope(Dispatchers.IO).launch {
+            try {
+                val apiService = ApiClient.getInstance(this@DashboardGuruActivity)
+                apiService.logout()
+            } catch (e: Exception) {
+                Log.e(TAG, "Logout API error: ${e.message}")
+            } finally {
+                withContext(Dispatchers.Main) {
+                    // Clear session
+                    sessionManager.clearSession()
+                    ApiClient.resetInstance()
 
-        // Notify adapter
-        val adapter = recyclerJadwal.adapter
-        adapter?.notifyItemRangeChanged(0, jadwalHariIni.size)
+                    // Navigate to login
+                    navigateToLogin()
+                }
+            }
+        }
+    }
+
+    private fun navigateToLogin() {
+        val intent = Intent(this, LoginAwal::class.java)
+        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+        startActivity(intent)
+        finish()
     }
 
     override fun onDestroy() {
         super.onDestroy()
         handler.removeCallbacks(runnable)
-        executor.shutdownNow()
     }
 
     // Data class untuk jadwal

@@ -8,9 +8,14 @@ import android.view.ViewGroup
 import android.widget.*
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.widget.PopupMenu
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.example.ritamesa.network.ApiClient
+import com.example.ritamesa.network.SessionManager
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -123,16 +128,22 @@ class RiwayatKehadiranSiswa : AppCompatActivity() {
             "Senin, 7 Januari 2026", "Flu", "Sakit"),
         KehadiranItem(10, "Eka Putri", "Siswa", "alpha", "07:00",
             "Senin, 7 Januari 2026", "-", "Alpha")
-    )
+    // List data yang ditampilkan
+    private val dataKehadiran = mutableListOf<KehadiranItem>()
+    private lateinit var sessionManager: SessionManager
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.riwayat_kehadiran_siswa)
+        
+        sessionManager = SessionManager(this)
 
         initViews()
         setupRecyclerView()
         setupFilters()
         setupNavigation()
+        
+        // Load default filter (Bulan ini)
         filterData()
     }
 
@@ -269,45 +280,70 @@ class RiwayatKehadiranSiswa : AppCompatActivity() {
     }
 
     private fun filterData() {
-        var filteredList = semuaKehadiran
-
-        // 1. Filter berdasarkan STATUS
-        if (currentStatus != "Semua") {
-            filteredList = filteredList.filter {
-                it.status.equals(currentStatus, ignoreCase = true)
-            }
-        }
-
-        // 2. Filter berdasarkan ROLE
-        if (currentRole != "Semua") {
-            filteredList = filteredList.filter {
-                when (currentRole) {
-                    "Guru" -> it.role == "Guru" || it.role == "Wali Kelas"
-                    "Siswa" -> it.role == "Siswa"
-                    else -> true
+        // Use API to fetch data
+        val month = currentDate.get(Calendar.MONTH) + 1
+        val year = currentDate.get(Calendar.YEAR)
+        
+        Toast.makeText(this, "Memuat data...", Toast.LENGTH_SHORT).show()
+        
+        CoroutineScope(Dispatchers.IO).launch {
+            try {
+                val apiService = ApiClient.getInstance(this@RiwayatKehadiranSiswa)
+                val response = apiService.getMyAttendance(month, year)
+                
+                withContext(Dispatchers.Main) {
+                    if (response.isSuccessful && response.body() != null) {
+                        val result = response.body()!!
+                        
+                        dataKehadiran.clear()
+                        result.data.forEach { record ->
+                            dataKehadiran.add(
+                                KehadiranItem(
+                                    id = record.id,
+                                    nama = sessionManager.getUserRole() ?: "Siswa", // Self
+                                    role = "Siswa",
+                                    status = record.status.lowercase(),
+                                    waktu = record.check_in_time ?: "-",
+                                    tanggal = record.date,
+                                    keterangan = record.status_label,
+                                    statusDetail = record.status_label
+                                )
+                            )
+                        }
+                        
+                        // Apply status filter locally if needed, or update API to support status
+                        val filtered = if (currentStatus != "Semua") {
+                            dataKehadiran.filter { it.statusDetail.equals(currentStatus, true) || it.status.equals(currentStatus, true) }
+                        } else {
+                            dataKehadiran
+                        }
+                        
+                        recyclerView.adapter = KehadiranAdapter(filtered)
+                        updateStatistics(filtered)
+                        
+                        Toast.makeText(this@RiwayatKehadiranSiswa, "Data dimuat", Toast.LENGTH_SHORT).show()
+                    } else {
+                        Toast.makeText(this@RiwayatKehadiranSiswa, "Gagal memuat data", Toast.LENGTH_SHORT).show()
+                    }
+                }
+            } catch (e: Exception) {
+                withContext(Dispatchers.Main) {
+                    Toast.makeText(this@RiwayatKehadiranSiswa, "Error: ${e.message}", Toast.LENGTH_SHORT).show()
                 }
             }
         }
-
-        // Update RecyclerView dengan data yang sudah difilter
-        recyclerView.adapter = KehadiranAdapter(filteredList)
-
-        // Update statistik
-        updateStatistics(filteredList)
     }
 
     private fun updateStatistics(filteredList: List<KehadiranItem>) {
         val total = filteredList.size
         tvTotalNumber.text = total.toString()
 
-        val hadir = filteredList.count { it.status.equals("hadir", true) }
-        val terlambat = filteredList.count { it.status.equals("terlambat", true) }
-        val izin = filteredList.count { it.status.equals("izin", true) }
-        val sakit = filteredList.count { it.status.equals("sakit", true) }
-        val alpha = filteredList.count { it.status.equals("alpha", true) }
-        val pulang = filteredList.count { it.status.equals("Pulang", true) }
-
-
+        val hadir = filteredList.count { it.status.equals("hadir", true) || it.status.equals("present", true) }
+        val terlambat = filteredList.count { it.status.equals("terlambat", true) || it.status.equals("late", true) }
+        val izin = filteredList.count { it.status.equals("izin", true) || it.status.equals("excused", true) }
+        val sakit = filteredList.count { it.status.equals("sakit", true) || it.status.equals("sick", true) }
+        val alpha = filteredList.count { it.status.equals("alpha", true) || it.status.equals("absent", true) }
+        
         tvHadirValue.text = hadir.toString()
         tvTerlambatValue.text = terlambat.toString()
         tvIzinValue.text = izin.toString()

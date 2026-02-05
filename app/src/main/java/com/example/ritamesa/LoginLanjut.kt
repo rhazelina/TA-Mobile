@@ -3,19 +3,30 @@ package com.example.ritamesa
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
+import android.view.View
 import android.widget.Button
 import android.widget.EditText
+import android.widget.ProgressBar
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import com.example.ritamesa.network.ApiClient
+import com.example.ritamesa.network.SessionManager
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class LoginLanjut : AppCompatActivity() {
 
     companion object {
         private const val TAG = "LoginLanjut"
     }
+
+    private lateinit var sessionManager: SessionManager
+    private lateinit var progressBar: ProgressBar
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -28,6 +39,14 @@ class LoginLanjut : AppCompatActivity() {
             insets
         }
 
+        sessionManager = SessionManager(this)
+        
+        // Check if already logged in
+        if (sessionManager.isLoggedIn()) {
+            navigateBasedOnRole(sessionManager.getUserRole() ?: "student", sessionManager.isClassOfficer())
+            return
+        }
+
         setupLoginButton()
     }
 
@@ -35,6 +54,7 @@ class LoginLanjut : AppCompatActivity() {
         val edtUsername = findViewById<EditText>(R.id.edtNama)
         val edtPassword = findViewById<EditText>(R.id.edtPass)
         val btnMasuk = findViewById<Button>(R.id.btnMasuk)
+        progressBar = ProgressBar(this) // You may need to add this to layout
 
         btnMasuk.setOnClickListener {
             val username = edtUsername.text.toString().trim()
@@ -45,62 +65,94 @@ class LoginLanjut : AppCompatActivity() {
                 return@setOnClickListener
             }
 
-            Log.d(TAG, "Login attempt: $username")
+            performLogin(username, password)
+        }
+    }
 
+    private fun performLogin(username: String, password: String) {
+        // Disable button during login
+        val btnMasuk = findViewById<Button>(R.id.btnMasuk)
+        btnMasuk.isEnabled = false
+        
+        Toast.makeText(this, "Logging in...", Toast.LENGTH_SHORT).show()
+
+        CoroutineScope(Dispatchers.IO).launch {
             try {
-                when {
-                    // ADMIN
-                    username == "admin" && password == "admin123" -> {
-                        Toast.makeText(this, "Login sebagai Admin...", Toast.LENGTH_SHORT).show()
-                        navigateToAdminDashboard()
-                    }
+                val apiService = ApiClient.getInstance(this@LoginLanjut)
+                val response = apiService.login(
+                    com.example.ritamesa.network.LoginRequest(
+                        email = username, // Backend expect email, tapi bisa username juga
+                        password = password,
+                        device_name = "Android"
+                    )
+                )
 
-                    // GURU
-                    username == "guru" && password == "guru123" -> {
-                        Toast.makeText(this, "Login sebagai Guru...", Toast.LENGTH_SHORT).show()
-                        navigateToGuruDashboard()
-                    }
-
-                    // WALI KELAS
-                    username == "wali" && password == "wali123" -> {
-                        Toast.makeText(this, "Login sebagai Wali Kelas...", Toast.LENGTH_SHORT).show()
-                        navigateToWaliKelasDashboard()
-                    }
-
-                    // SISWA BIASA
-                    username == "siswa" && password == "siswa123" -> {
-                        Toast.makeText(this, "Login sebagai Siswa...", Toast.LENGTH_SHORT).show()
-                        navigateToSiswaDashboard(false) // false = bukan pengurus
-                    }
-
-                    // SISWA PENGURUS KELAS
-                    username == "pengurus" && password == "pengurus123" -> {
-                        Toast.makeText(this, "Login sebagai Pengurus Kelas...", Toast.LENGTH_SHORT).show()
-                        navigateToSiswaDashboard(true) // true = pengurus
-                    }
-
-                    // BACKUP CREDENTIALS (opsional)
-                    username == "12345" && password == "guru123" -> {
-                        Toast.makeText(this, "Login sebagai Guru...", Toast.LENGTH_SHORT).show()
-                        navigateToGuruDashboard()
-                    }
-                    username == "54321" && password == "wakel123" -> {
-                        Toast.makeText(this, "Login sebagai Wali Kelas...", Toast.LENGTH_SHORT).show()
-                        navigateToWaliKelasDashboard()
-                    }
-                    username == "99999" && password == "admin999" -> {
-                        Toast.makeText(this, "Login sebagai Admin...", Toast.LENGTH_SHORT).show()
-                        navigateToAdminDashboard()
-                    }
-
-                    else -> {
-                        Toast.makeText(this, "Username atau password salah", Toast.LENGTH_SHORT).show()
-                        edtPassword.text.clear()
+                withContext(Dispatchers.Main) {
+                    btnMasuk.isEnabled = true
+                    
+                    if (response.isSuccessful && response.body() != null) {
+                        val loginResponse = response.body()!!
+                        
+                        // Save token and user data
+                        sessionManager.saveAuthToken(loginResponse.token)
+                        sessionManager.saveUserData(
+                            userId = loginResponse.user.id,
+                            name = loginResponse.user.name,
+                            email = loginResponse.user.email,
+                            role = loginResponse.user.role,
+                            isClassOfficer = loginResponse.user.is_class_officer ?: false
+                        )
+                        
+                        Toast.makeText(
+                            this@LoginLanjut,
+                            "Login berhasil! Selamat datang ${loginResponse.user.name}",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                        
+                        // Navigate based on role
+                        navigateBasedOnRole(
+                            loginResponse.user.role,
+                            loginResponse.user.is_class_officer ?: false
+                        )
+                    } else {
+                        val errorBody = response.errorBody()?.string()
+                        Log.e(TAG, "Login failed: $errorBody")
+                        Toast.makeText(
+                            this@LoginLanjut,
+                            "Login gagal: Username atau password salah",
+                            Toast.LENGTH_SHORT
+                        ).show()
                     }
                 }
             } catch (e: Exception) {
-                Toast.makeText(this, "Login error: ${e.message}", Toast.LENGTH_LONG).show()
-                Log.e(TAG, "Login failed: ${e.message}", e)
+                withContext(Dispatchers.Main) {
+                    btnMasuk.isEnabled = true
+                    Log.e(TAG, "Login error: ${e.message}", e)
+                    Toast.makeText(
+                        this@LoginLanjut,
+                        "Error: ${e.message ?: "Tidak dapat terhubung ke server"}",
+                        Toast.LENGTH_LONG
+                    ).show()
+                }
+            }
+        }
+    }
+
+    private fun navigateBasedOnRole(role: String, isClassOfficer: Boolean) {
+        when (role.lowercase()) {
+            "admin" -> navigateToAdminDashboard()
+            "teacher" -> {
+                // Check if wali kelas (homeroom teacher)
+                // For now, navigate to guru dashboard
+                // TODO: Check if teacher has homeroom_class_id
+                navigateToGuruDashboard()
+            }
+            "student" -> {
+                navigateToSiswaDashboard(isClassOfficer)
+            }
+            else -> {
+                Toast.makeText(this, "Role tidak dikenali: $role", Toast.LENGTH_SHORT).show()
+                navigateToSiswaDashboard(false)
             }
         }
     }

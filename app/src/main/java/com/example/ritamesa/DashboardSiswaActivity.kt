@@ -1,5 +1,6 @@
 package com.example.ritamesa
 
+import android.app.AlertDialog
 import android.content.Intent
 import android.os.Bundle
 import android.os.Handler
@@ -15,10 +16,19 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.example.ritamesa.network.ApiClient
+import com.example.ritamesa.network.SessionManager
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.text.SimpleDateFormat
 import java.util.*
 
 class DashboardSiswaActivity : AppCompatActivity() {
+
+    // Session Manager
+    private lateinit var sessionManager: SessionManager
 
     private lateinit var txtTanggalSekarang: TextView
     private lateinit var txtWaktuLive: TextView
@@ -49,8 +59,17 @@ class DashboardSiswaActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         Log.d(TAG, "=== DASHBOARD SISWA ACTIVITY START ===")
 
+        sessionManager = SessionManager(this)
+
+        // Check if logged in
+        if (!sessionManager.isLoggedIn()) {
+            navigateToLogin()
+            return
+        }
+
         try {
-            isPengurus = intent.getBooleanExtra("IS_PENGURUS", false)
+            isPengurus = intent.getBooleanExtra("IS_PENGURUS", false) 
+                ?: sessionManager.isClassOfficer()
             Log.d(TAG, "isPengurus = $isPengurus")
 
             setContentView(R.layout.dashboard_siswa)
@@ -61,7 +80,11 @@ class DashboardSiswaActivity : AppCompatActivity() {
             setupProfileImage()
             setupRecyclerView()
             setupButtonListeners()
+            setupLogoutButton()
             updateRoleUI()
+            
+            // Load data from API
+            loadDashboardData()
 
             Toast.makeText(this, "Dashboard dimuat sukses", Toast.LENGTH_SHORT).show()
 

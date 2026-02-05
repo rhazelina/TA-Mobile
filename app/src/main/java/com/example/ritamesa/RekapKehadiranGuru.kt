@@ -20,11 +20,19 @@ class RekapKehadiranGuru : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.rekap_kehadiran_guru)
 
-        // Setup RecyclerView
+        initView()
+        setupRecyclerView()
+        setupActions()
+        setupBottomNavigation()
+    }
+
+    private fun initView() {
         recyclerView = findViewById(R.id.recyclerViewGuru)
+    }
+
+    private fun setupRecyclerView() {
         recyclerView.layoutManager = LinearLayoutManager(this)
 
-        // Data dummy untuk contoh
         val guruList = listOf(
             Guru("1", "Budi Santoso", "1987654321", "Matematika"),
             Guru("2", "Siti Aminah", "1987654322", "Bahasa Indonesia"),
@@ -34,10 +42,12 @@ class RekapKehadiranGuru : AppCompatActivity() {
         )
 
         adapter = GuruAdapter(guruList) { guru ->
-            showDetailDialog(guru)
+            showDetailKehadiranDialog(guru)
         }
         recyclerView.adapter = adapter
+    }
 
+    private fun setupActions() {
         // Setup tombol back
         findViewById<ImageButton>(R.id.btnBack).setOnClickListener {
             finish()
@@ -59,6 +69,91 @@ class RekapKehadiranGuru : AppCompatActivity() {
                 false
             }
         }
+    }
+
+    private fun performSearch(query: String) {
+        // Implementasi pencarian
+        if (::adapter.isInitialized) {
+            adapter.filter(query)
+        }
+    }
+
+    private fun showDetailKehadiranDialog(guru: Guru) {
+        val detailKehadiran = getGuruDetailKehadiran(guru)
+
+        AlertDialog.Builder(this)
+            .setTitle("Detail Kehadiran Guru")
+            .setMessage(formatDetailMessage(detailKehadiran))
+            .setPositiveButton("Tutup") { dialog, _ ->
+                dialog.dismiss()
+            }
+            .show()
+    }
+
+    private fun getGuruDetailKehadiran(guru: Guru): DetailKehadiranGuru {
+        // Mapping detail kehadiran berdasarkan guru
+        return when (guru.nomor) {
+            "1" -> DetailKehadiranGuru(
+                "Senin, 7 Januari 2026",
+                "Jam ke 1  07:00",
+                guru.mataPelajaran,
+                "Hadir",
+                "12 RPL, 12 TKJ, 12 MM",
+                "Mengajar sesuai jadwal"
+            )
+            "2" -> DetailKehadiranGuru(
+                "Senin, 7 Januari 2026",
+                "Jam ke 2  08:45",
+                guru.mataPelajaran,
+                "Hadir",
+                "11 RPL, 11 TKJ",
+                "Mengajar dengan baik"
+            )
+            "3" -> DetailKehadiranGuru(
+                "Selasa, 8 Januari 2026",
+                "Jam ke 1  07:00",
+                guru.mataPelajaran,
+                "Terlambat",
+                "10 RPL, 10 MM",
+                "Terlambat 15 menit"
+            )
+            "4" -> DetailKehadiranGuru(
+                "Selasa, 8 Januari 2026",
+                "Jam ke 2  08:45",
+                guru.mataPelajaran,
+                "Izin",
+                "12 RPL, 12 TKJ",
+                "Izin dinas"
+            )
+            "5" -> DetailKehadiranGuru(
+                "Rabu, 9 Januari 2026",
+                "Jam ke 3  10:30",
+                guru.mataPelajaran,
+                "Hadir",
+                "11 MM, 10 TKJ",
+                "Mengajar sesuai jadwal"
+            )
+            else -> DetailKehadiranGuru(
+                "Kamis, 10 Januari 2026",
+                "Jam ke 1  07:00",
+                guru.mataPelajaran,
+                "Hadir",
+                "Semua kelas 12",
+                "Mengajar dengan baik"
+            )
+        }
+    }
+
+    private fun formatDetailMessage(detail: DetailKehadiranGuru): String {
+        return """
+            ${detail.tanggal}
+            ${detail.jam}
+            
+            Mata Pelajaran : ${detail.mataPelajaran}
+            Status : ${detail.status}
+            Jurusan/kelas: ${detail.jurusanKelas}
+            Keterangan : ${detail.keterangan}
+        """.trimIndent()
     }
 
     private fun showPopupMenu(view: View) {
@@ -86,38 +181,34 @@ class RekapKehadiranGuru : AppCompatActivity() {
         popup.show()
     }
 
-    private fun performSearch(query: String) {
-        // Implementasi pencarian
-        if (::adapter.isInitialized) {
-            adapter.filter(query)
+    private fun setupBottomNavigation() {
+        // Home - ke Dashboard
+        findViewById<ImageButton>(R.id.imageButton2).setOnClickListener {
+            val intent = Intent(this, Dashboard::class.java)
+            startActivity(intent)
+            finish()
         }
-    }
 
-    private fun showDetailDialog(guru: Guru) {
-        AlertDialog.Builder(this)
-            .setTitle("Detail Guru")
-            .setMessage(
-                """
-                Nama: ${guru.nama}
-                NIP: ${guru.nip}
-                Mata Pelajaran: ${guru.mataPelajaran}
-                
-                Kehadiran Bulan Ini:
-                • Hadir: 20 hari
-                • Izin: 1 hari
-                • Sakit: 0 hari
-                • Alpa: 0 hari
-                • Terlambat: 1 hari
-                • Pulang: 2 hari
-                
-                Persentase Kehadiran: 95.2%
-                """.trimIndent()
-            )
-            .setPositiveButton("Tutup") { dialog, _ ->
-                dialog.dismiss()
-            }
+        // Contacts - ke Rekap Kehadiran (Siswa)
+        findViewById<ImageButton>(R.id.imageButton3).setOnClickListener {
+            val intent = Intent(this, RekapKehadiranSiswa::class.java)
+            startActivity(intent)
+            finish()
+        }
 
-            .show()
+        // Bar Chart - ke Statistik
+        findViewById<ImageButton>(R.id.imageButton5).setOnClickListener {
+            val intent = Intent(this, StatistikKehadiran::class.java)
+            startActivity(intent)
+            finish()
+        }
+
+        // Notifications - ke Notifikasi
+        findViewById<ImageButton>(R.id.imageButton6).setOnClickListener {
+            val intent = Intent(this, NotifikasiSemua::class.java)
+            startActivity(intent)
+            finish()
+        }
     }
 
     // Data class untuk guru
@@ -126,6 +217,16 @@ class RekapKehadiranGuru : AppCompatActivity() {
         val nama: String,
         val nip: String,
         val mataPelajaran: String
+    )
+
+    // Data class untuk detail kehadiran guru - DIPERBAIKI
+    data class DetailKehadiranGuru(
+        val tanggal: String,
+        val jam: String, // Format: "Jam ke 1  07:00" dengan spasi ganda
+        val mataPelajaran: String,
+        val status: String,
+        val jurusanKelas: String, // NAMA VARIABEL DIPERBAIKI (tidak boleh ada slash)
+        val keterangan: String
     )
 
     // Adapter untuk RecyclerView dengan filter

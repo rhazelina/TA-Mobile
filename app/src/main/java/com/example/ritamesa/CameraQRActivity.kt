@@ -6,6 +6,9 @@ import android.content.pm.PackageManager
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.os.VibrationEffect
+import android.os.Vibrator
+import android.util.Log
 import android.view.View
 import android.widget.ImageButton
 import android.widget.ProgressBar
@@ -13,45 +16,63 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
+import com.example.ritamesa.network.ApiClient
+import com.example.ritamesa.network.ScanQRRequest
+import com.example.ritamesa.network.SessionManager
 import com.google.zxing.ResultPoint
 import com.journeyapps.barcodescanner.BarcodeCallback
 import com.journeyapps.barcodescanner.BarcodeResult
 import com.journeyapps.barcodescanner.DecoratedBarcodeView
-import android.widget.TextView
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import org.json.JSONObject
 
 class CameraQRActivity : AppCompatActivity() {
+
+    companion object {
+        private const val TAG = "CameraQRActivity"
+        private const val CAMERA_PERMISSION_REQUEST = 100
+        const val EXTRA_QR_RESULT = "qr_result"
+    }
 
     private lateinit var barcodeView: DecoratedBarcodeView
     private lateinit var btnBack: ImageButton
     private lateinit var btnFlash: ImageButton
     private lateinit var progressBar: ProgressBar
+    private lateinit var sessionManager: SessionManager
 
     private var isFlashOn = false
     private var isScanning = true
-
     private lateinit var barcodeCallback: BarcodeCallback
 
-    companion object {
-        private const val CAMERA_PERMISSION_REQUEST = 100
-        const val EXTRA_QR_RESULT = "qr_result"
-        const val EXTRA_JADWAL_ID = "jadwal_id"
-        const val EXTRA_MAPEL = "mata_pelajaran"
-        const val EXTRA_KELAS = "kelas"
-    }
+    // Location (dummy for now)
+    private var currentLatitude: Double? = null
+    private var currentLongitude: Double? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_camera_qr)
+
+        sessionManager = SessionManager(this)
+
+        // Check if logged in
+        if (!sessionManager.isLoggedIn()) {
+            navigateToLogin()
+            return
+        }
 
         initViews()
         setupCallback()
         setupCamera()
         setupButtonListeners()
 
+        // Auto-simulate for testing (remove in production)
         Handler(Looper.getMainLooper()).postDelayed({
-            simulateQRScan()
+            if (isScanning) {
+                simulateQRScan()
+            }
         }, 3000)
     }
 
@@ -67,7 +88,7 @@ class CameraQRActivity : AppCompatActivity() {
             override fun barcodeResult(result: BarcodeResult) {
                 if (!isScanning) return
                 isScanning = false
-                handleQRResult(result.text)
+                handleQRScanResult(result.text)
             }
 
             override fun possibleResultPoints(resultPoints: MutableList<ResultPoint>?) {
@@ -94,7 +115,7 @@ class CameraQRActivity : AppCompatActivity() {
             barcodeView.decodeContinuous(barcodeCallback)
             barcodeView.resume()
         } catch (e: Exception) {
-            simulateQRScan()
+            Log.e(TAG, "Camera error: ${e.message}")
         }
     }
 
@@ -107,48 +128,157 @@ class CameraQRActivity : AppCompatActivity() {
         Handler(Looper.getMainLooper()).postDelayed({
             progressBar.visibility = View.GONE
 
-            val simulatedQRData = "ABSENSI|${getRandomKelas()}|${getRandomMapel()}|${getCurrentDate()}|${getCurrentTime()}"
-            handleQRResult(simulatedQRData)
+            // Simulate JSON QR from backend
+            val simulatedQR = """
+                {
+                    "token": "simulated-token-${System.currentTimeMillis()}",
+                    "type": "student",
+                    "schedule_id": 1
+                }
+            """.trimIndent()
+
+            handleQRScanResult(simulatedQR)
         }, 1500)
     }
 
-    private fun handleQRResult(qrText: String) {
+    private fun handleQRScanResult(qrData: String) {
+        try {
+            // Try to parse as JSON (backend format)
+            val json = JSONObject(qrData)
+            val token = json.getString("token")
+
+            Log.d(TAG, "QR Token: $token")
+
+            // Send to backend
+            scanAttendance(token)
+
+        } catch (e: Exception) {
+            // Fallback: treat as plain token or old format
+            Log.w(TAG, "QR not JSON, treating as token: $qrData")
+
+            // Check if old format (ABSENSI|...)
+            if (qrData.startsWith("ABSENSI|")) {
+                handleOldFormatQR(qrData)
+            } else {
+                // Treat as plain token
+                scanAttendance(qrData)
+            }
+        }
+    }
+
+    private fun scanAttendance(qrcodeToken: String) {
         progressBar.visibility = View.VISIBLE
 
-        Handler(Looper.getMainLooper()).postDelayed({
-            progressBar.visibility = View.GONE
+        CoroutineScope(Dispatchers.IO).launch {
+            try {
+                val apiService = ApiClient.getInstance(this@CameraQRActivity)
+                val response = apiService.scanQR(
+                    ScanQRRequest(
+                        qrcode_token = qrcodeToken,
+                        latitude = currentLatitude,
+                        longitude = currentLongitude
+                    )
+                )
 
-            val qrParts = qrText.split("|")
+                withContext(Dispatchers.Main) {
+                    progressBar.visibility = View.GONE
 
-            if (qrParts.size >= 4 && qrParts[0] == "ABSENSI") {
+                    if (response.isSuccessful && response.body() != null) {
+                        val result = response.body()!!
 
-                val kelas = qrParts.getOrNull(1) ?: "-"
-                val mapel = qrParts.getOrNull(2) ?: "-"
-                val tanggal = qrParts.getOrNull(3) ?: "-"
-                val jam = qrParts.getOrNull(4) ?: "-"
+                        // Vibrate on success
+                        vibrate()
 
-                val intent = Intent(this@CameraQRActivity, AbsensiSiswaActivity::class.java).apply {
-                    putExtra(EXTRA_KELAS, kelas)
-                    putExtra(EXTRA_MAPEL, mapel)
+                        // Show success message
+                        Toast.makeText(
+                            this@CameraQRActivity,
+                            "✅ ${result.message}\nStatus: ${result.status}",
+                            Toast.LENGTH_LONG
+                        ).show()
+
+                        // Navigate back to dashboard
+                        Handler(Looper.getMainLooper()).postDelayed({
+                            finish()
+                        }, 2000)
+
+                    } else {
+                        val errorBody = response.errorBody()?.string()
+                        Log.e(TAG, "Scan failed: $errorBody")
+
+                        Toast.makeText(
+                            this@CameraQRActivity,
+                            "❌ Scan gagal: QR tidak valid atau kadaluarsa",
+                            Toast.LENGTH_LONG
+                        ).show()
+
+                        // Allow retry
+                        isScanning = true
+                    }
+                }
+            } catch (e: Exception) {
+                withContext(Dispatchers.Main) {
+                    progressBar.visibility = View.GONE
+
+                    Log.e(TAG, "Scan error: ${e.message}", e)
+                    Toast.makeText(
+                        this@CameraQRActivity,
+                        "Error: ${e.message ?: "Tidak dapat terhubung ke server"}",
+                        Toast.LENGTH_LONG
+                    ).show()
+
+                    // Allow retry
+                    isScanning = true
+                }
+            }
+        }
+    }
+
+    private fun handleOldFormatQR(qrText: String) {
+        // Old format: ABSENSI|Kelas|Mapel|Tanggal|Jam
+        val qrParts = qrText.split("|")
+
+        if (qrParts.size >= 4 && qrParts[0] == "ABSENSI") {
+            val kelas = qrParts.getOrNull(1) ?: "-"
+            val mapel = qrParts.getOrNull(2) ?: "-"
+            val tanggal = qrParts.getOrNull(3) ?: "-"
+            val jam = qrParts.getOrNull(4) ?: "-"
+
+            // Navigate to old activity (if exists)
+            try {
+                val intent = Intent(this, AbsensiSiswaActivity::class.java).apply {
+                    putExtra("kelas", kelas)
+                    putExtra("mapel", mapel)
                     putExtra("tanggal", tanggal)
                     putExtra("jam", jam)
                 }
                 startActivity(intent)
                 finish()
-
-            } else {
-                Toast.makeText(this, "QR Code tidak valid: $qrText", Toast.LENGTH_LONG).show()
+            } catch (e: Exception) {
+                Toast.makeText(this, "Error: ${e.message}", Toast.LENGTH_SHORT).show()
                 isScanning = true
-                Handler(Looper.getMainLooper()).postDelayed({
-                    simulateQRScan()
-                }, 2000)
             }
-        }, 1500)
+        } else {
+            Toast.makeText(this, "QR Code tidak valid", Toast.LENGTH_LONG).show()
+            isScanning = true
+        }
+    }
+
+    private fun vibrate() {
+        try {
+            val vibrator = getSystemService(VIBRATOR_SERVICE) as Vibrator
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+                vibrator.vibrate(VibrationEffect.createOneShot(200, VibrationEffect.DEFAULT_AMPLITUDE))
+            } else {
+                @Suppress("DEPRECATION")
+                vibrator.vibrate(200)
+            }
+        } catch (e: Exception) {
+            Log.e(TAG, "Vibrate error: ${e.message}")
+        }
     }
 
     private fun setupButtonListeners() {
         btnBack.setOnClickListener {
-            setResult(RESULT_CANCELED)
             finish()
         }
 
@@ -156,57 +286,35 @@ class CameraQRActivity : AppCompatActivity() {
             toggleFlash()
         }
 
+        // Long press to simulate scan (for testing)
         btnFlash.setOnLongClickListener {
-            simulateQRScan()
+            if (isScanning) {
+                simulateQRScan()
+            }
             true
         }
     }
 
     private fun toggleFlash() {
         isFlashOn = !isFlashOn
-        if (isFlashOn) {
-            try {
+        try {
+            if (isFlashOn) {
                 barcodeView.setTorchOn()
-            } catch (e: Exception) {
-            }
-            btnFlash.setImageResource(R.drawable.ic_flash_on)
-        } else {
-            try {
+                btnFlash.setImageResource(R.drawable.ic_flash_on)
+            } else {
                 barcodeView.setTorchOff()
-            } catch (e: Exception) {
+                btnFlash.setImageResource(R.drawable.ic_flash_off)
             }
-            btnFlash.setImageResource(R.drawable.ic_flash_off)
+        } catch (e: Exception) {
+            Log.e(TAG, "Flash error: ${e.message}")
         }
     }
 
-    private fun getRandomKelas(): String {
-        val kelasList = listOf(
-            "XI RPL 1", "XI RPL 2", "XI RPL 3",
-            "XI Mekatronika 1", "XI Mekatronika 2",
-            "XI TKJ 1", "XI TKJ 2",
-            "XI DKV 1", "XI DKV 2",
-            "XI Animasi 1", "XI Animasi 2"
-        )
-        return kelasList.random()
-    }
-
-    private fun getRandomMapel(): String {
-        val mapelList = listOf(
-            "Matematika", "Bahasa Indonesia", "Pemrograman Dasar",
-            "Basis Data", "Fisika", "Kimia", "Sejarah",
-            "Seni Budaya", "PJOK", "Bahasa Inggris", "PKN"
-        )
-        return mapelList.random()
-    }
-
-    private fun getCurrentDate(): String {
-        val sdf = java.text.SimpleDateFormat("dd-MM-yyyy", java.util.Locale.getDefault())
-        return sdf.format(java.util.Date())
-    }
-
-    private fun getCurrentTime(): String {
-        val sdf = java.text.SimpleDateFormat("HH:mm", java.util.Locale.getDefault())
-        return sdf.format(java.util.Date())
+    private fun navigateToLogin() {
+        val intent = Intent(this, LoginAwal::class.java)
+        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+        startActivity(intent)
+        finish()
     }
 
     override fun onRequestPermissionsResult(
@@ -223,7 +331,7 @@ class CameraQRActivity : AppCompatActivity() {
             startCamera()
         } else {
             Toast.makeText(this, "Izin kamera diperlukan", Toast.LENGTH_LONG).show()
-            simulateQRScan()
+            finish()
         }
     }
 
@@ -232,6 +340,7 @@ class CameraQRActivity : AppCompatActivity() {
         try {
             barcodeView.resume()
         } catch (e: Exception) {
+            Log.e(TAG, "Resume error: ${e.message}")
         }
     }
 
@@ -241,6 +350,7 @@ class CameraQRActivity : AppCompatActivity() {
             barcodeView.pause()
             barcodeView.setTorchOff()
         } catch (e: Exception) {
+            Log.e(TAG, "Pause error: ${e.message}")
         }
     }
 
@@ -249,6 +359,7 @@ class CameraQRActivity : AppCompatActivity() {
         try {
             barcodeView.pause()
         } catch (e: Exception) {
+            Log.e(TAG, "Destroy error: ${e.message}")
         }
     }
 }

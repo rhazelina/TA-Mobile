@@ -1,5 +1,6 @@
 package com.example.ritamesa
 
+import android.app.AlertDialog
 import android.app.DatePickerDialog
 import android.content.Intent
 import android.os.Bundle
@@ -13,10 +14,19 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.example.ritamesa.network.ApiClient
+import com.example.ritamesa.network.SessionManager
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.text.SimpleDateFormat
 import java.util.*
 
 class RiwayatKehadiranGuruActivity : AppCompatActivity() {
+
+    // Session Manager
+    private lateinit var sessionManager: SessionManager
 
     private lateinit var recyclerView: RecyclerView
     private lateinit var txtHadirCount: TextView
@@ -224,64 +234,47 @@ class RiwayatKehadiranGuruActivity : AppCompatActivity() {
     }
 
     private fun applyDateFilter() {
-        if (isLoading) return
+        // Use API for filtering
+        loadDataAsync()
+    }
 
-        isLoading = true
-        Toast.makeText(this, "Memfilter data berdasarkan tanggal...", Toast.LENGTH_SHORT).show()
+    private fun applyFilter(status: String) {
+        filterActive = if (filterActive == status) null else status
+        updateTombolAktif()
+        loadDataAsync()
+    }
 
-        Thread {
-            try {
-                val dateFormat = SimpleDateFormat(DATE_FORMAT, Locale.getDefault())
-                val selectedDateStr = dateFormat.format(selectedDate.time)
+    private fun updateTombolAktif() {
+        // Reset all buttons
+        val defaultColor = android.graphics.Color.parseColor("#F3F4F6") // Gray-100
+        btnHadir.setBackgroundColor(defaultColor)
+        btnSakit.setBackgroundColor(defaultColor)
+        btnIzin.setBackgroundColor(defaultColor)
+        btnAlpha.setBackgroundColor(defaultColor)
 
-                val tempFilteredData = mutableListOf<Map<String, Any>>()
-                synchronized(allData) {
-                    for (data in allData) {
-                        val tanggal = data["tanggal"] as? String ?: ""
-                        if (tanggal.contains(selectedDateStr)) {
-                            tempFilteredData.add(data)
-                        }
-                    }
-                }
+        // Reset text colors
+        resetTextColors()
 
-                handler.post {
-                    filteredData.clear()
-                    filteredData.addAll(tempFilteredData)
-
-                    if (filterActive != null) {
-                        applyFilter(filterActive!!)
-                    } else {
-                        adapter.notifyDataSetChanged()
-                    }
-
-                    // Update statistik untuk tanggal yang dipilih
-                    updateAngkaTombol()
-
-                    isLoading = false
-
-                    val itemCount = filteredData.size
-                    Toast.makeText(
-                        this@RiwayatKehadiranGuruActivity,
-                        if (itemCount > 0) {
-                            "Menampilkan $itemCount data untuk $selectedDateStr"
-                        } else {
-                            "Tidak ada data untuk $selectedDateStr"
-                        },
-                        Toast.LENGTH_SHORT
-                    ).show()
-                }
-            } catch (e: Exception) {
-                Log.e(TAG, "Error in applyDateFilter: ${e.message}", e)
-                handler.post {
-                    isLoading = false
-                    Toast.makeText(
-                        this@RiwayatKehadiranGuruActivity,
-                        "Gagal memfilter data",
-                        Toast.LENGTH_SHORT
-                    ).show()
-                }
+        // Highlight active button
+        when (filterActive) {
+            "hadir" -> {
+                btnHadir.setBackgroundColor(android.graphics.Color.parseColor("#10B981")) // Green
+                txtHadirCount.setTextColor(textColorActive)
+                // findViewById<TextView>(R.id.label_hadir).setTextColor(textColorActive)
             }
-        }.start()
+            "sakit" -> {
+                btnSakit.setBackgroundColor(android.graphics.Color.parseColor("#F59E0B")) // Yellow
+                txtSakitCount.setTextColor(textColorActive)
+            }
+            "izin" -> {
+                btnIzin.setBackgroundColor(android.graphics.Color.parseColor("#3B82F6")) // Blue
+                txtIzinCount.setTextColor(textColorActive)
+            }
+            "alpha" -> {
+                btnAlpha.setBackgroundColor(android.graphics.Color.parseColor("#EF4444")) // Red
+                txtAlphaCount.setTextColor(textColorActive)
+            }
+        }
     }
 
     private fun setupRecyclerView() {
@@ -367,108 +360,111 @@ class RiwayatKehadiranGuruActivity : AppCompatActivity() {
         if (isLoading) return
 
         isLoading = true
+        // Show loading indicator if exists
         Toast.makeText(this, "Memuat data...", Toast.LENGTH_SHORT).show()
+        
+        // Prepare params
+        val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+        val dateParam = if (dateFilterActive) dateFormat.format(selectedDate.time) else null
+        val statusParam = filterActive
 
-        Thread {
+        CoroutineScope(Dispatchers.IO).launch {
             try {
-                buatDataDummyGuru()
+                // Initialize session manager if not already
+                if (!::sessionManager.isInitialized) {
+                     sessionManager = SessionManager(this@RiwayatKehadiranGuruActivity)
+                }
+                
+                val apiService = ApiClient.getInstance(this@RiwayatKehadiranGuruActivity)
+                val response = apiService.getTeacherAttendance(dateParam, statusParam)
 
-                handler.post {
-                    // Saat pertama load, langsung hitung statistik untuk tanggal yang aktif
-                    updateAngkaTombol()
-                    adapter.notifyDataSetChanged()
+                withContext(Dispatchers.Main) {
+                    if (response.isSuccessful && response.body() != null) {
+                        val result = response.body()!!
+                        
+                        // Clear existing data
+                        allData.clear()
+                        filteredData.clear()
+                        
+                        // Map response to adapter format
+                        // Expected format: mapOf("id", "mapel", "kelas", "status", "tanggal", "statusType")
+                        val mappedData = result.data.map { record ->
+                            mapOf(
+                                "id" to record.id,
+                                "mapel" to record.subject,
+                                "kelas" to record.class_name,
+                                "status" to record.status_label,
+                                "tanggal" to "${record.date} ${record.time}",
+                                "statusType" to record.status.lowercase()
+                            )
+                        }
+                        
+                        allData.addAll(mappedData)
+                        filteredData.addAll(mappedData) // Assuming API returns filtered data
+                        
+                        adapter.notifyDataSetChanged()
+                        
+                        // Update summary counts if available
+                        if (result.summary != null) {
+                            txtHadirCount.text = result.summary.present.toString()
+                            txtSakitCount.text = result.summary.sick.toString()
+                            txtIzinCount.text = result.summary.excused.toString()
+                            txtAlphaCount.text = result.summary.absent.toString()
+                        }
+                        
+                        Toast.makeText(
+                            this@RiwayatKehadiranGuruActivity,
+                            "Data berhasil dimuat: ${filteredData.size} item",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                        
+                    } else {
+                        Log.e(TAG, "API Error: ${response.code()}")
+                        // Fallback to dummy if needed or just show error
+                        // buatDataDummyGuru() // Uncomment if fallback needed
+                        Toast.makeText(
+                            this@RiwayatKehadiranGuruActivity,
+                            "Gagal memuat data: ${response.message()}",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    }
                     isLoading = false
-                    Toast.makeText(
-                        this@RiwayatKehadiranGuruActivity,
-                        "Data riwayat guru dimuat",
-                        Toast.LENGTH_SHORT
-                    ).show()
                 }
             } catch (e: Exception) {
-                Log.e(TAG, "Error in loadDataAsync: ${e.message}", e)
-                handler.post {
-                    isLoading = false
+                withContext(Dispatchers.Main) {
+                    Log.e(TAG, "Exception: ${e.message}")
                     Toast.makeText(
                         this@RiwayatKehadiranGuruActivity,
-                        "Gagal memuat data: ${e.message}",
-                        Toast.LENGTH_LONG
+                        "Error koneksi: ${e.message}",
+                        Toast.LENGTH_SHORT
                     ).show()
+                    isLoading = false
                 }
             }
-        }.start()
+        }
     }
 
-    private fun buatDataDummyGuru() {
+    private fun resetTextColors() {
+        txtHadirCount.setTextColor(textColorNormal)
+        txtSakitCount.setTextColor(textColorNormal)
+        txtIzinCount.setTextColor(textColorNormal)
+        txtAlphaCount.setTextColor(textColorNormal)
+    }
+
+    private fun updateAngkaTombol() {
+        // Deprecated: API returns summary
+    }
+
+    private fun setupFilterButtons() {
         try {
-            allData.clear()
-            filteredData.clear()
-
-            val mapelList = listOf("Matematika", "Bahasa Indonesia", "Bahasa Inggris", "Fisika", "Kimia")
-            val kelasList = listOf("XII RPL 1", "XII RPL 2", "XII TKJ 1", "XII TKJ 2")
-
-            val calendar = Calendar.getInstance()
-            val dateFormat = SimpleDateFormat(DATE_FORMAT, Locale.getDefault())
-
-            // Buat data untuk 7 hari terakhir
-            for (dayOffset in 0..6) {
-                calendar.time = Date()
-                calendar.add(Calendar.DAY_OF_YEAR, -dayOffset)
-                val tanggal = dateFormat.format(calendar.time)
-
-                // Buat 3-5 entri per hari
-                val entriesPerDay = (3..5).random()
-                for (entryIndex in 1..entriesPerDay) {
-                    val id = dayOffset * 10 + entryIndex
-
-                    // Distribusi status dengan probabilitas berbeda
-                    val statusRand = (1..100).random()
-                    val statusType = when {
-                        statusRand <= 70 -> "hadir"      // 70% hadir
-                        statusRand <= 85 -> "sakit"      // 15% sakit
-                        statusRand <= 95 -> "izin"       // 10% izin
-                        else -> "alpha"                  // 5% alpha
-                    }
-
-                    val statusText = when (statusType) {
-                        "hadir" -> if (entryIndex % 3 == 0) "Hadir Terlambat" else "Hadir Tepat Waktu"
-                        "sakit" -> "Tidak Bisa Mengajar"
-                        "izin" -> "Tidak Bisa Mengajar"
-                        "alpha" -> "Tanpa Keterangan"
-                        else -> "Tidak Mengajar"
-                    }
-
-                    val jamList = listOf("07:30", "09:15", "11:00", "13:45")
-                    val jam = jamList[entryIndex % jamList.size]
-
-                    allData.add(mapOf(
-                        "id" to id,
-                        "mapel" to mapelList[entryIndex % mapelList.size],
-                        "kelas" to kelasList[entryIndex % kelasList.size],
-                        "status" to statusText,
-                        "tanggal" to "$tanggal $jam",
-                        "statusType" to statusType
-                    ))
-                }
-            }
-
-            // Urutkan berdasarkan tanggal (terbaru dulu)
-            allData.sortWith(compareByDescending<Map<String, Any>> {
-                val tanggal = it["tanggal"] as? String ?: ""
-                tanggal
-            })
-
-            // Set awal: tampilkan data hari ini
-            val todayStr = dateFormat.format(Date())
-            filteredData.addAll(allData.filter {
-                val tanggal = it["tanggal"] as? String ?: ""
-                tanggal.contains(todayStr)
-            })
-
-            Log.d(TAG, "Data dummy dibuat: ${allData.size} item, hari ini: ${filteredData.size} item")
+            btnHadir.setOnClickListener { applyFilter("hadir") }
+            btnSakit.setOnClickListener { applyFilter("sakit") }
+            btnIzin.setOnClickListener { applyFilter("izin") }
+            btnAlpha.setOnClickListener { applyFilter("alpha") }
         } catch (e: Exception) {
-            Log.e(TAG, "Error buatDataDummyGuru: ${e.message}", e)
-            throw e
+            Log.e(TAG, "Error setupFilterButtons: ${e.message}")
         }
+    }        }
     }
 
     private fun toggleFilter(status: String) {

@@ -21,7 +21,7 @@ class RekapKehadiranSiswa : AppCompatActivity() {
     private lateinit var btnBack: ImageButton
     private lateinit var btnMenu: ImageButton
 
-    // Data dummy
+    // Data dummy siswa
     private val siswaList = listOf(
         SiswaRekap(1, "Andi Wijaya", "1234567890", "XII", "RPL"),
         SiswaRekap(2, "Budi Santoso", "2345678901", "XII", "TKJ"),
@@ -35,6 +35,90 @@ class RekapKehadiranSiswa : AppCompatActivity() {
         SiswaRekap(10, "Joko Susilo", "0123456789", "XII", "RPL")
     )
 
+    // Data dummy detail kehadiran per siswa - DITAMBAHKAN NAMA GURU
+    private val detailKehadiranMap = mapOf(
+        1 to DetailKehadiran(
+            "Senin, 7 Januari 2026",
+            "Jam ke 1  07:00",
+            "Bahasa",
+            "Hadir",
+            "Hadir",
+            "Ibu Siti Aminah"
+        ),
+        2 to DetailKehadiran(
+            "Senin, 7 Januari 2026",
+            "Jam ke 2  08:45",
+            "Matematika",
+            "Hadir",
+            "Hadir tepat waktu",
+            "Pak Budi Santoso"
+        ),
+        3 to DetailKehadiran(
+            "Selasa, 8 Januari 2026",
+            "Jam ke 1  07:00",
+            "IPA",
+            "Terlambat",
+            "Terlambat 15 menit",
+            "Pak Agus Wijaya"
+        ),
+        4 to DetailKehadiran(
+            "Selasa, 8 Januari 2026",
+            "Jam ke 2  08:45",
+            "Bahasa Inggris",
+            "Sakit",
+            "Izin sakit",
+            "Ibu Dewi Lestari"
+        ),
+        5 to DetailKehadiran(
+            "Rabu, 9 Januari 2026",
+            "Jam ke 3  10:30",
+            "Sejarah",
+            "Izin",
+            "Izin keluarga",
+            "Pak Rudi Hartono"
+        ),
+        6 to DetailKehadiran(
+            "Rabu, 9 Januari 2026",
+            "Jam ke 1  07:00",
+            "PKN",
+            "Hadir",
+            "Hadir",
+            "Ibu Siti Aminah"
+        ),
+        7 to DetailKehadiran(
+            "Kamis, 10 Januari 2026",
+            "Jam ke 2  08:45",
+            "Fisika",
+            "Alpa",
+            "Tidak hadir tanpa keterangan",
+            "Pak Agus Wijaya"
+        ),
+        8 to DetailKehadiran(
+            "Kamis, 10 Januari 2026",
+            "Jam ke 3  10:30",
+            "Kimia",
+            "Hadir",
+            "Hadir",
+            "Pak Agus Wijaya"
+        ),
+        9 to DetailKehadiran(
+            "Jumat, 11 Januari 2026",
+            "Jam ke 1  07:00",
+            "Biologi",
+            "Hadir",
+            "Hadir tepat waktu",
+            "Ibu Dewi Lestari"
+        ),
+        10 to DetailKehadiran(
+            "Jumat, 11 Januari 2026",
+            "Jam ke 2  08:45",
+            "Seni Budaya",
+            "Hadir",
+            "Hadir",
+            "Pak Rudi Hartono"
+        )
+    )
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.rekap_kehadiran_siswa)
@@ -42,6 +126,7 @@ class RekapKehadiranSiswa : AppCompatActivity() {
         initView()
         setupRecyclerView()
         setupActions()
+        setupBottomNavigation()
     }
 
     private fun initView() {
@@ -59,7 +144,7 @@ class RekapKehadiranSiswa : AppCompatActivity() {
             siswaList,
             onLihatClickListener = { siswa ->
                 // Aksi ketika tombol lihat diklik
-                showDetailDialog(siswa)
+                showDetailKehadiranDialog(siswa)
             }
         )
         recyclerView.adapter = rekapAdapter
@@ -71,7 +156,7 @@ class RekapKehadiranSiswa : AppCompatActivity() {
             finish()
         }
 
-        // BUTTON MENU (More Vert) - DIPERBAIKI
+        // BUTTON MENU (More Vert)
         btnMenu.setOnClickListener {
             showPopupMenu(it)
         }
@@ -90,72 +175,88 @@ class RekapKehadiranSiswa : AppCompatActivity() {
             }
         })
 
-        // BOTTOM NAVIGATION
-        setupBottomNavigation()
-    }
-
-    private fun showPopupMenu(view: View) {
-        // Membuat popup menu untuk pilih guru/siswa
-        PopupMenu(this, view).apply {
-            menuInflater.inflate(R.menu.menu_rekap_switch, menu)
-
-            setOnMenuItemClickListener { menuItem ->
-                when (menuItem.itemId) {
-                    R.id.menu_guru -> {
-                        // Pindah ke halaman rekap guru
-                        val intent = Intent(this@RekapKehadiranSiswa, RekapKehadiranGuru::class.java)
-                        startActivity(intent)
-                        finish() // Tutup halaman siswa
-                        true
-                    }
-                    R.id.menu_siswa -> {
-                        // Sudah di halaman siswa
-                        Toast.makeText(this@RekapKehadiranSiswa, "Anda sudah di halaman Rekap Siswa", Toast.LENGTH_SHORT).show()
-                        true
-                    }
-                    else -> false
-                }
+        // SEARCH ACTION LISTENER
+        editTextSearch.setOnEditorActionListener { _, actionId, _ ->
+            if (actionId == android.view.inputmethod.EditorInfo.IME_ACTION_SEARCH) {
+                performSearch()
+                true
+            } else {
+                false
             }
-
-            show()
         }
     }
 
     private fun performSearch() {
         val query = editTextSearch.text.toString().trim()
-        rekapAdapter.filterData(query, siswaList)
+        rekapAdapter.filter(query)
     }
 
-    private fun showDetailDialog(siswa: SiswaRekap) {
+    private fun showDetailKehadiranDialog(siswa: SiswaRekap) {
+        val detailKehadiran = detailKehadiranMap[siswa.id] ?: getDefaultDetail()
+
         AlertDialog.Builder(this)
-            .setTitle("Detail Kehadiran Siswa")
-            .setMessage(
-                """
-                Nama: ${siswa.nama}
-                NISN: ${siswa.nisn}
-                Kelas/Jurusan: ${siswa.getKelasJurusan()}
-                
-                Kehadiran Bulan Ini:
-                • Hadir: 18 hari
-                • Izin: 2 hari
-                • Sakit: 1 hari
-                • Alpa: 0 hari
-                • Terlambat: 1 hari
-                • Pulang: 2 hari
-                
-                
-                Persentase Kehadiran: 85.7%
-                """.trimIndent()
-            )
+            .setTitle("Detail Kehadiran")
+            .setMessage(formatDetailMessage(detailKehadiran))
             .setPositiveButton("Tutup") { dialog, _ ->
                 dialog.dismiss()
             }
-
             .show()
     }
 
+    private fun getDefaultDetail(): DetailKehadiran {
+        return DetailKehadiran(
+            "Senin, 7 Januari 2026",
+            "Jam ke 1  07:00",
+            "Bahasa",
+            "Hadir",
+            "Hadir",
+            "Ibu Siti Aminah"
+        )
+    }
+
+    private fun formatDetailMessage(detail: DetailKehadiran): String {
+        return """
+            ${detail.tanggal}
+            ${detail.jam}
+            
+            Mata pelajaran : ${detail.mataPelajaran}
+            Guru pengajar : ${detail.guruPengajar} 
+            Status : ${detail.status}
+            Keterangan : ${detail.keterangan}
+        """.trimIndent()
+    }
+
+    private fun showPopupMenu(view: View) {
+        val popup = PopupMenu(this, view)
+        popup.menuInflater.inflate(R.menu.menu_rekap_switch, popup.menu)
+
+        popup.setOnMenuItemClickListener { menuItem ->
+            when (menuItem.itemId) {
+                R.id.menu_guru -> {
+                    // Pindah ke halaman rekap guru
+                    val intent = Intent(this, RekapKehadiranGuru::class.java)
+                    startActivity(intent)
+                    finish()
+                    true
+                }
+
+                R.id.menu_siswa -> {
+                    // Sudah di halaman siswa
+                    Toast.makeText(this, "Anda sudah di halaman Rekap Siswa", Toast.LENGTH_SHORT)
+                        .show()
+                    true
+                }
+
+                else -> false
+            }
+        }
+
+        popup.show()
+    }
+
     private fun showMenuDialog() {
-        val items = arrayOf("Refresh Data", "Ekspor ke Excel", "Filter Berdasarkan Kelas", "Pengaturan")
+        val items =
+            arrayOf("Refresh Data", "Ekspor ke Excel", "Filter Berdasarkan Kelas", "Pengaturan")
 
         AlertDialog.Builder(this)
             .setTitle("Menu")
@@ -166,14 +267,18 @@ class RekapKehadiranSiswa : AppCompatActivity() {
                         rekapAdapter.updateData(siswaList)
                         Toast.makeText(this, "Data direfresh", Toast.LENGTH_SHORT).show()
                     }
+
                     1 -> {
                         // Ekspor ke Excel
-                        Toast.makeText(this, "Mengekspor data ke Excel...", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(this, "Mengekspor data ke Excel...", Toast.LENGTH_SHORT)
+                            .show()
                     }
+
                     2 -> {
                         // Filter berdasarkan kelas
                         showFilterDialog()
                     }
+
                     3 -> {
                         // Pengaturan
                         Toast.makeText(this, "Membuka pengaturan", Toast.LENGTH_SHORT).show()
@@ -221,7 +326,11 @@ class RekapKehadiranSiswa : AppCompatActivity() {
             .show()
     }
 
-    private fun showSingleChoiceDialog(title: String, items: Array<String>, onItemSelected: (Int) -> Unit) {
+    private fun showSingleChoiceDialog(
+        title: String,
+        items: Array<String>,
+        onItemSelected: (Int) -> Unit
+    ) {
         AlertDialog.Builder(this)
             .setTitle(title)
             .setSingleChoiceItems(items, 0) { dialog, which ->
@@ -233,34 +342,34 @@ class RekapKehadiranSiswa : AppCompatActivity() {
     }
 
     private fun setupBottomNavigation() {
-        // Home
+        // Home - ke Dashboard
         findViewById<ImageButton>(R.id.imageButton2).setOnClickListener {
-            Toast.makeText(this, "Home", Toast.LENGTH_SHORT).show()
-            // startActivity(Intent(this, MainActivity::class.java))
-            // finish()
+            val intent = Intent(this, Dashboard::class.java)
+            startActivity(intent)
+            finish()
         }
 
-        // Contacts (Active)
+        // Contacts (Active) - ke Data Rekap (halaman ini)
         findViewById<ImageButton>(R.id.imageButton3).setOnClickListener {
-            Toast.makeText(this, "Contacts sudah aktif", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, "Anda sudah di halaman Rekap Kehadiran", Toast.LENGTH_SHORT).show()
         }
 
-        // Bar Chart
+        // Bar Chart - ke Statistik
         findViewById<ImageButton>(R.id.imageButton5).setOnClickListener {
-            Toast.makeText(this, "Bar Chart", Toast.LENGTH_SHORT).show()
-            // startActivity(Intent(this, StatistikActivity::class.java))
-            // finish()
+            val intent = Intent(this, StatistikKehadiran::class.java)
+            startActivity(intent)
+            finish()
         }
 
-        // Notifications
+        // Notifications - ke Notifikasi
         findViewById<ImageButton>(R.id.imageButton6).setOnClickListener {
-            Toast.makeText(this, "Notifications", Toast.LENGTH_SHORT).show()
-            // startActivity(Intent(this, NotifikasiActivity::class.java))
-            // finish()
+            val intent = Intent(this, NotifikasiSemua::class.java)
+            startActivity(intent)
+            finish()
         }
     }
 
-    // Data class untuk siswa (jika belum ada di file lain)
+    // Data class untuk siswa
     data class SiswaRekap(
         val id: Int,
         val nama: String,
@@ -270,6 +379,16 @@ class RekapKehadiranSiswa : AppCompatActivity() {
     ) {
         fun getKelasJurusan(): String = "$kelas $jurusan"
     }
+
+    // Data class untuk detail kehadiran - DITAMBAHKAN PARAMETER guruPengajar
+    data class DetailKehadiran(
+        val tanggal: String,
+        val jam: String,
+        val mataPelajaran: String,
+        val status: String,
+        val keterangan: String,
+        val guruPengajar: String
+    )
 
     // Adapter untuk RecyclerView siswa
     class RekapSiswaAdapter(
@@ -285,6 +404,15 @@ class RekapKehadiranSiswa : AppCompatActivity() {
             val tvNisn: TextView = itemView.findViewById(R.id.tvTelepon)
             val tvKelasJurusan: TextView = itemView.findViewById(R.id.tvMataPelajaran)
             val btnLihat: ImageButton = itemView.findViewById(R.id.btnLihat)
+
+            init {
+                btnLihat.setOnClickListener {
+                    val position = adapterPosition
+                    if (position != RecyclerView.NO_POSITION) {
+                        onLihatClickListener(filteredList[position])
+                    }
+                }
+            }
         }
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): SiswaViewHolder {
@@ -299,19 +427,15 @@ class RekapKehadiranSiswa : AppCompatActivity() {
             holder.tvNama.text = siswa.nama
             holder.tvNisn.text = siswa.nisn
             holder.tvKelasJurusan.text = "${siswa.kelas} ${siswa.jurusan}"
-
-            holder.btnLihat.setOnClickListener {
-                onLihatClickListener(siswa)
-            }
         }
 
         override fun getItemCount(): Int = filteredList.size
 
-        fun filterData(query: String, originalList: List<SiswaRekap>) {
+        fun filter(query: String) {
             filteredList = if (query.isEmpty()) {
-                originalList
+                dataList
             } else {
-                originalList.filter {
+                dataList.filter {
                     it.nama.contains(query, ignoreCase = true) ||
                             it.nisn.contains(query, ignoreCase = true) ||
                             it.kelas.contains(query, ignoreCase = true) ||
